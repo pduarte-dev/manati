@@ -1,3 +1,0 @@
-# teste 2
-
-Comece a escrever aqui...
