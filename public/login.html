@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Manati Editor</title>
+    <link rel="icon" type="image/png" href="assets/manati_logo_v2.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: var(--bs-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .login-container {
+            background: var(--bs-body-bg);
+            border-radius: 1rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid var(--bs-border-color);
+        }
+
+        .login-header {
+            background: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--bs-border-color);
+        }
+
+        .logo img {
+            max-width: 100%;
+            width: auto;
+            height: 120px;
+            margin-bottom: 1.5rem;
+            object-fit: contain;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .github-btn {
+            background: #333;
+            border: 2px solid #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .github-btn:hover {
+            background: #24292e;
+            border-color: #24292e;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                margin: 1rem;
+                border-radius: 0.5rem;
+            }
+            
+            .login-header, .login-body {
+                padding: 1.5rem;
+            }
+            
+            .logo img {
+                height: 80px;
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="login-container">
+                    <!-- Header -->
+                    <div class="login-header">
+                        <img src="assets/manati_logo_v2.png" alt="Manati Logo" class="logo img-fluid">
+                        <h2 class="h3 mb-2">Manati</h2>
+                        <p class="mb-0 text-muted">Editor de Markdown Profissional</p>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="login-body">
+                        <div id="error-message" class="alert alert-danger d-none" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span id="error-text"></span>
+                        </div>
+
+                        <!-- Botão GitHub -->
+                        <a href="/auth/github" class="github-btn" id="github-login">
+                            <i class="bi bi-github" style="font-size: 1.25rem;"></i>
+                            <span>Entrar com GitHub</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Verificar se há erro na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        
+        if (error) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            let message = 'Erro desconhecido';
+            
+            switch (error) {
+                case 'auth_failed':
+                    message = 'Falha na autenticação. Verifique se seu email GitHub está autorizado.';
+                    break;
+                case 'access_denied':
+                    message = 'Acesso negado. Apenas emails corporativos autorizados.';
+                    break;
+                case 'invalid_domain':
+                    message = 'Domínio de email não autorizado.';
+                    break;
+                default:
+                    message = 'Erro na autenticação. Tente novamente.';
+            }
+            
+            errorText.textContent = message;
+            errorDiv.classList.remove('d-none');
+        }
+
+        // Loading no botão
+        document.getElementById('github-login').addEventListener('click', function(e) {
+            const btn = e.currentTarget;
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = `
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <span>Conectando...</span>
+            `;
+            
+            btn.style.pointerEvents = 'none';
+            
+            // Se não redirecionar em 10 segundos, restaurar
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.style.pointerEvents = 'auto';
+            }, 10000);
+        });
+
+        // Verificar se autenticação é necessária
+        fetch('/auth/status')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.authRequired) {
+                    // Autenticação não é necessária, redirecionar
+                    window.location.href = '/';
+                } else if (data.authenticated) {
+                    // Já está autenticado, redirecionar
+                    window.location.href = '/';
+                }
+            })
+            .catch(console.error);
+    </script>
+</body>
+</html>

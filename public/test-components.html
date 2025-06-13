@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Componentes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/themes.css" rel="stylesheet">
+</head>
+<body data-bs-theme="dark">
+    <div id="test-navbar"></div>
+    <div id="test-sidebar"></div>
+    
+    <script>
+        async function loadComponent(containerId, componentPath) {
+            try {
+                console.log(`Carregando ${componentPath}...`);
+                const response = await fetch(componentPath);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+                console.log(`✅ Componente ${componentPath} carregado!`);
+            } catch (error) {
+                console.error(`❌ Erro ao carregar ${componentPath}:`, error);
+            }
+        }
+
+        async function testComponents() {
+            await loadComponent('test-navbar', 'components/navbar.html');
+            await loadComponent('test-sidebar', 'components/sidebar.html');
+            console.log('🎉 Teste de componentes concluído!');
+        }
+
+        document.addEventListener('DOMContentLoaded', testComponents);
+    </script>
+</body>
+</html>

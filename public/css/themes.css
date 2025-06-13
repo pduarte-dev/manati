@@ -1,0 +1,139 @@
+/* Tema Claro (padrão) */
+:root {
+    --editor-bg: #ffffff;
+    --editor-color: #212529;
+    --sidebar-bg: #f8f9fa;
+}
+
+/* Tema Escuro */
+[data-bs-theme="dark"] {
+    --editor-bg: #1a1a1a;
+    --editor-color: #e9ecef;
+    --sidebar-bg: #2d3748;
+}
+
+/* Aplicar cores personalizadas para o editor */
+.editor-textarea {
+    background-color: var(--editor-bg) !important;
+    color: var(--editor-color) !important;
+}
+
+/* Sidebar personalizada */
+.sidebar {
+    background-color: var(--sidebar-bg) !important;
+}
+
+/* Melhor contraste para tema escuro */
+[data-bs-theme="dark"] .preview-container pre {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #4a5568;
+}
+
+[data-bs-theme="dark"] .preview-container code {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+[data-bs-theme="dark"] .visual-editor pre {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #4a5568;
+}
+
+[data-bs-theme="dark"] .visual-editor code {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+[data-bs-theme="dark"] .preview-container blockquote {
+    color: #a0aec0 !important;
+    border-left-color: #4299e1 !important;
+}
+
+[data-bs-theme="dark"] .visual-editor blockquote {
+    color: #a0aec0 !important;
+    border-left-color: #4299e1 !important;
+    background-color: #2d3748 !important;
+}
+
+[data-bs-theme="dark"] .file-item:hover {
+    background-color: #4a5568 !important;
+}
+
+[data-bs-theme="dark"] .file-item.active {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+}
+
+[data-bs-theme="dark"] .preview-container {
+    background-color: #1a202c !important;
+    color: #e2e8f0 !important;
+}
+
+[data-bs-theme="dark"] .visual-editor {
+    background-color: #1a202c !important;
+    color: #e2e8f0 !important;
+}
+
+/* Ajustes para tabelas no modo escuro */
+[data-bs-theme="dark"] .preview-container table th,
+[data-bs-theme="dark"] .preview-container table td {
+    border-color: #4a5568 !important;
+}
+
+[data-bs-theme="dark"] .preview-container table th {
+    background-color: #2d3748 !important;
+}
+
+[data-bs-theme="dark"] .visual-editor table th,
+[data-bs-theme="dark"] .visual-editor table td {
+    border-color: #4a5568 !important;
+}
+
+[data-bs-theme="dark"] .visual-editor table th {
+    background-color: #2d3748 !important;
+}
+
+/* Ajustes para formulários no modo escuro */
+[data-bs-theme="dark"] .modal-content {
+    background-color: #2d3748 !important;
+    border-color: #4a5568 !important;
+}
+
+[data-bs-theme="dark"] .form-control {
+    background-color: #1a202c !important;
+    border-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+}
+
+[data-bs-theme="dark"] .form-control:focus {
+    background-color: #1a202c !important;
+    border-color: var(--bs-primary) !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 0 0 0.25rem rgba(66, 153, 225, 0.25) !important;
+}
+
+/* Transições suaves para mudança de tema */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+.editor-textarea,
+.preview-container,
+.sidebar,
+.file-item,
+.modal-content,
+.form-control,
+.visual-editor {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Garantir que o tema seja aplicado corretamente */
+[data-bs-theme="dark"] {
+    color-scheme: dark;
+}
+
+[data-bs-theme="light"] {
+    color-scheme: light;
+}

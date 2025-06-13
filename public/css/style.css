@@ -1,0 +1,909 @@
+/* Reset e layout base */
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Navbar fixa - sempre visível */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    height: 90px;
+    padding: 0.5rem 1rem;
+    background-color: var(--bs-body-bg) !important;
+    border-bottom: 1px solid var(--bs-border-color) !important;
+    backdrop-filter: blur(10px);
+}
+
+.navbar .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar .navbar-brand .logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+/* Container principal - layout fixo */
+.main-container {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    height: calc(100vh - 90px);
+}
+
+/* Sidebar fixa - sempre visível */
+.sidebar {
+    position: fixed;
+    left: 0;
+    width: 300px;
+    height: calc(100vh - 90px);
+    overflow-y: auto;
+    border-right: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-bg);
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(0) !important; /* Sempre visível */
+}
+
+.sidebar-header {
+    flex-shrink: 0;
+    padding: 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.file-tree {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* Área do editor - ajustada para sidebar fixa */
+.editor-area {
+    position: fixed;
+    top: 90px;
+    left: 300px !important; /* Sempre com margem para sidebar */
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bs-body-bg);
+    overflow: hidden;
+}
+
+.editor-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editor-tabs {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.tab-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.tab-pane {
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tab-pane.show.active {
+    display: flex;
+}
+
+/* Editor de texto markdown */
+.editor-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.editor-textarea {
+    border: none;
+    resize: none;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    flex: 1;
+    border-radius: 0;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+.editor-textarea:focus {
+    box-shadow: none;
+    border: none;
+    outline: none;
+}
+
+/* Editor Visual */
+.visual-editor-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.visual-toolbar {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--bs-border-color);
+    padding: 0.5rem;
+    background-color: var(--bs-secondary-bg);
+}
+
+.visual-editor {
+    flex: 1;
+    min-height: 0;
+    padding: 1.5rem;
+    overflow-y: auto;
+    border: none;
+    outline: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+.visual-editor:empty:before {
+    content: attr(data-placeholder);
+    color: var(--bs-secondary-color);
+    font-style: italic;
+}
+
+/* Formatação do editor visual */
+.visual-editor h1, .visual-editor h2, .visual-editor h3, 
+.visual-editor h4, .visual-editor h5, .visual-editor h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.visual-editor h1 { font-size: 2.25rem; }
+.visual-editor h2 { font-size: 1.875rem; }
+.visual-editor h3 { font-size: 1.5rem; }
+.visual-editor h4 { font-size: 1.25rem; }
+.visual-editor h5 { font-size: 1.125rem; }
+.visual-editor h6 { font-size: 1rem; }
+
+.visual-editor p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.visual-editor ul, .visual-editor ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.visual-editor li {
+    margin-bottom: 0.25rem;
+}
+
+.visual-editor blockquote {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--bs-primary);
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-style: italic;
+}
+
+.visual-editor pre {
+    background-color: var(--bs-secondary-bg);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--bs-border-color);
+}
+
+.visual-editor pre code {
+    background: none;
+    padding: 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.visual-editor code {
+    background-color: var(--bs-secondary-bg);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.875em;
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Preview */
+.preview-container {
+    height: 100%;
+    overflow-y: auto;
+    background-color: var(--bs-body-bg);
+    padding: 1.5rem;
+}
+
+.preview-container h1,
+.preview-container h2,
+.preview-container h3,
+.preview-container h4,
+.preview-container h5,
+.preview-container h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.preview-container p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.preview-container pre {
+    background-color: var(--bs-secondary-bg);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+}
+
+.preview-container code {
+    background-color: var(--bs-secondary-bg);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+.preview-container blockquote {
+    border-left: 4px solid var(--bs-primary);
+    margin: 1rem 0;
+    padding-left: 1rem;
+    color: var(--bs-secondary-color);
+}
+
+.preview-container table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.preview-container th,
+.preview-container td {
+    border: 1px solid var(--bs-border-color);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+
+.preview-container th {
+    background-color: var(--bs-secondary-bg);
+    font-weight: 600;
+}
+
+/* File tree */
+.file-item {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.file-item:hover {
+    background-color: var(--bs-secondary-bg);
+}
+
+.file-item.active {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.file-item.folder {
+    font-weight: 500;
+}
+
+.file-item .file-name {
+    flex: 1;
+    min-width: 0; /* Permite que o flex item encolha além do tamanho do conteúdo */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 0.5rem;
+}
+
+/* Estilos para arquivos com título e nome */
+.file-item .file-display {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    margin-right: 0.5rem;
+}
+
+.file-item .file-title {
+    font-weight: 500;
+    color: var(--bs-body-color);
+    font-size: 0.875rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 2px;
+}
+
+.file-item .file-filename {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-item .file-path {
+    font-size: 0.7rem;
+    color: var(--bs-secondary-color);
+    opacity: 0.8;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 1px;
+}
+
+.file-item .file-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 10;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.file-item .file-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.file-item:hover .file-actions {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Para telas pequenas, garantir que o botão seja visível no hover */
+@media (max-width: 768px) {
+    .file-item .file-actions {
+        opacity: 0;
+    }
+    
+    .file-item:hover .file-actions {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* File info */
+.file-info {
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--bs-secondary-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+/* Toolbar */
+.visual-toolbar .btn {
+    border-radius: 0.25rem;
+    margin-right: 0.125rem;
+}
+
+.visual-toolbar .btn.active {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
+
+/* Upload progress */
+.upload-progress {
+    position: fixed;
+    top: 110px;
+    right: 1rem;
+    z-index: 1050;
+    min-width: 300px;
+}
+
+/* Placeholder states */
+.visual-editor-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bs-secondary-color);
+}
+
+/* Scrollbars customizados */
+.sidebar::-webkit-scrollbar,
+.file-tree::-webkit-scrollbar,
+.preview-container::-webkit-scrollbar,
+.editor-textarea::-webkit-scrollbar,
+.visual-editor::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.file-tree::-webkit-scrollbar-track,
+.preview-container::-webkit-scrollbar-track,
+.editor-textarea::-webkit-scrollbar-track,
+.visual-editor::-webkit-scrollbar-track {
+    background: var(--bs-secondary-bg);
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.file-tree::-webkit-scrollbar-thumb,
+.preview-container::-webkit-scrollbar-thumb,
+.editor-textarea::-webkit-scrollbar-thumb,
+.visual-editor::-webkit-scrollbar-thumb {
+    background: var(--bs-border-color);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.file-tree::-webkit-scrollbar-thumb:hover,
+.preview-container::-webkit-scrollbar-thumb:hover,
+.editor-textarea::-webkit-scrollbar-thumb:hover,
+.visual-editor::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-secondary-color);
+}
+
+/* Transições suaves */
+.tab-content,
+.tab-pane,
+.visual-editor,
+.editor-textarea,
+.preview-container {
+    transition: all 0.2s ease;
+}
+
+/* Toast melhorado para mensagens de erro */
+.toast-container {
+    position: fixed;
+    top: 100px;
+    right: 1rem;
+    z-index: 1055;
+    max-width: 400px;
+}
+
+.toast {
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: none;
+}
+
+.toast.error {
+    background-color: #dc3545;
+    color: white;
+}
+
+.toast.success {
+    background-color: #198754;
+    color: white;
+}
+
+.toast.warning {
+    background-color: #fd7e14;
+    color: white;
+}
+
+.toast.info {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.toast-header {
+    background-color: rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    color: inherit;
+}
+
+.toast-body {
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.toast .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+/* Menu dropdown para ações de arquivo */
+.file-item .file-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 10;
+}
+
+.file-item:hover .file-actions {
+    opacity: 1;
+    visibility: visible;
+}
+
+.file-menu-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--bs-secondary);
+    transition: all 0.2s;
+}
+
+.file-menu-btn:hover {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+.file-menu-btn i {
+    font-size: 14px;
+}
+
+.file-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.file-dropdown-content {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--bs-body-bg);
+    min-width: 150px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    padding: 0.5rem 0;
+}
+
+.file-dropdown.show .file-dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.file-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--bs-body-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+.file-dropdown-item:hover {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+.file-dropdown-item i {
+    width: 16px;
+    font-size: 14px;
+}
+
+.file-dropdown-item.danger {
+    color: var(--bs-danger);
+}
+
+.file-dropdown-item.danger:hover {
+    background-color: var(--bs-danger);
+    color: white;
+}
+
+/* Garantir que não há pseudo-elementos inesperados nos itens da árvore */
+.file-item::after,
+.file-item *::after {
+    display: none !important;
+}
+
+/* Manter apenas a barra lateral de indicação de lock */
+.file-item.file-locked::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--bs-warning);
+    transition: all 0.2s;
+}
+
+.file-item.file-locked.my-lock::before {
+    background: var(--bs-success);
+}
+
+/* ===== ESTILOS PARA ARQUIVOS TRAVADOS ===== */
+
+/* Arquivo sendo editado pelo usuário atual */
+.file-item.file-locked.my-lock {
+    background-color: rgba(25, 135, 84, 0.1);
+    border-left: 3px solid var(--bs-success);
+}
+
+.file-item.file-locked.my-lock:hover {
+    background-color: rgba(25, 135, 84, 0.15);
+}
+
+/* Arquivo sendo editado por outro usuário */
+.file-item.file-locked.other-lock {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid var(--bs-warning);
+}
+
+.file-item.file-locked.other-lock:hover {
+    background-color: rgba(255, 193, 7, 0.15);
+}
+
+/* Ícones de lock */
+.file-item.file-locked.my-lock .bi-pencil-fill {
+    color: var(--bs-success) !important;
+    animation: pulse-green 2s infinite;
+}
+
+.file-item.file-locked.other-lock .bi-pencil-fill {
+    color: var(--bs-warning) !important;
+    animation: pulse-orange 2s infinite;
+}
+
+/* Animações para indicar atividade */
+@keyframes pulse-green {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse-orange {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ===== FIM DOS ESTILOS PARA ARQUIVOS TRAVADOS ===== */
+
+/* ===== ESTILOS PARA ARQUIVOS MODIFICADOS (GIT) ===== */
+
+/* Arquivo modificado pelo usuário atual */
+.file-item.file-modified {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-left: 3px solid var(--bs-info);
+}
+
+.file-item.file-modified:hover {
+    background-color: rgba(13, 110, 253, 0.15);
+}
+
+/* Ícone azul para arquivo modificado */
+.file-item.file-modified .bi {
+    color: var(--bs-info) !important;
+}
+
+/* Precedência de locks sobre modificações */
+.file-item.file-locked.file-modified .bi {
+    /* Lock tem prioridade sobre modificação */
+    color: inherit !important;
+}
+
+.file-item.file-locked.my-lock.file-modified {
+    background-color: rgba(25, 135, 84, 0.1);
+    border-left: 3px solid var(--bs-success);
+}
+
+.file-item.file-locked.other-lock.file-modified {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid var(--bs-warning);
+}
+
+/* Badge para contador de arquivos modificados no botão Git */
+#modifiedFilesCount {
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 2px 6px;
+}
+
+/* Animação sutil para indicar arquivos modificados */
+.file-item.file-modified .bi-file-text.text-info {
+    animation: pulse-blue 3s infinite;
+}
+
+@keyframes pulse-blue {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ===== FIM DOS ESTILOS PARA ARQUIVOS MODIFICADOS ===== */
+
+/* ===== ESTILOS PARA ÁREA DO USUÁRIO ===== */
+.user-info {
+    position: sticky;
+    bottom: 0;
+    background-color: var(--bs-body-bg);
+    border-top: 1px solid var(--bs-border-color);
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.user-avatar {
+    flex-shrink: 0;
+}
+
+.user-avatar img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 2px solid var(--bs-border-color);
+}
+
+.user-details {
+    flex: 1;
+    min-width: 0; /* Para permitir truncamento */
+    overflow: hidden;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--bs-body-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.user-email {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.logout-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilo especial para modo developer */
+.user-info.developer-mode {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-top-color: var(--bs-warning);
+}
+
+.user-info.developer-mode .user-name {
+    color: var(--bs-warning);
+    font-weight: bold;
+}
+
+.user-info.developer-mode .user-email {
+    color: var(--bs-warning);
+    opacity: 0.8;
+}
+/* ===== FIM DOS ESTILOS PARA ÁREA DO USUÁRIO ===== */
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .user-info {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
+    .user-avatar img {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .user-name {
+        font-size: 0.8rem;
+    }
+    
+    .user-email {
+        font-size: 0.7rem;
+    }
+    
+    .logout-btn {
+        width: 28px;
+        height: 28px;
+    }
+}

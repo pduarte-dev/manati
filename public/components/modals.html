@@ -1,0 +1,181 @@
+<!-- Componente: Modais da aplicação -->
+
+<!-- Modal Novo Arquivo -->
+<div class="modal fade" id="newFileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Novo Arquivo Markdown</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newFileName" class="form-label">Nome do arquivo:</label>
+                    <input type="text" class="form-control" id="newFileName" placeholder="meu-documento">
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i> 
+                        A extensão .md será adicionada automaticamente
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="createFileBtn">Criar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nova Pasta -->
+<div class="modal fade" id="newFolderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nova Pasta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newFolderName" class="form-label">Nome da pasta:</label>
+                    <input type="text" class="form-control" id="newFolderName" placeholder="minha-pasta">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="createFolderBtn">Criar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Inserir Link -->
+<div class="modal fade" id="insertLinkModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inserir Link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="linkText" class="form-label">Texto do link:</label>
+                    <input type="text" class="form-control" id="linkText" placeholder="Digite o texto que aparecerá">
+                </div>
+                <div class="mb-3">
+                    <label for="linkUrl" class="form-label">URL:</label>
+                    <input type="url" class="form-control" id="linkUrl" placeholder="https://exemplo.com">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="insertLinkConfirm">Inserir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Inserir Tabela -->
+<div class="modal fade" id="insertTableModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inserir Tabela</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6">
+                        <label for="tableRows" class="form-label">Linhas:</label>
+                        <input type="number" class="form-control" id="tableRows" value="3" min="1" max="20">
+                    </div>
+                    <div class="col-6">
+                        <label for="tableCols" class="form-label">Colunas:</label>
+                        <input type="number" class="form-control" id="tableCols" value="3" min="1" max="10">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="insertTableConfirm">Inserir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Mover Arquivo/Pasta -->
+<div class="modal fade" id="moveItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moveItemModalTitle">Mover Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Movendo:</label>
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle"></i>
+                        <span id="moveItemName"></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="moveDestination" class="form-label">Selecionar destino:</label>
+                    <select class="form-select" id="moveDestination">
+                        <option value="">Raiz (pasta principal)</option>
+                    </select>
+                    <div class="form-text">Selecione a pasta de destino onde o item será movido</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmMoveBtn">Mover</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação Personalizada -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle">Confirmar Ação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-question-circle-fill text-warning me-3" style="font-size: 2rem;"></i>
+                    <div>
+                        <p class="mb-0" id="confirmModalMessage">Tem certeza que deseja realizar esta ação?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmModalConfirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Input Personalizada -->
+<div class="modal fade" id="inputModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputModalTitle">Digite um valor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="inputModalField" class="form-label" id="inputModalLabel">Valor:</label>
+                    <input type="text" class="form-control" id="inputModalField" placeholder="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="inputModalConfirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>

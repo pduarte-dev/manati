@@ -1,0 +1,41 @@
+<!-- Componente: Sidebar com explorador de arquivos -->
+<div class="sidebar bg-body-secondary" id="sidebar">
+    <div class="sidebar-header">
+        <h6 class="mb-2">Explorador de Arquivos</h6>
+        
+        <!-- Botões de ação -->
+        <div class="action-buttons d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" id="toggleSearchBtn" title="Buscar arquivos">
+                <i class="bi bi-search"></i>
+            </button>
+            <button class="btn btn-outline-primary btn-sm flex-grow-1" id="newFolderBtn">
+                <i class="bi bi-folder-plus"></i> Nova Pasta
+            </button>
+            
+            <!-- Campo de busca que substitui o botão Nova Pasta -->
+            <div class="input-group input-group-sm flex-grow-1" id="searchInputGroup" style="display: none;">
+                <input type="text" class="form-control" id="fileSearchInput" placeholder="Buscar arquivos...">
+                <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="file-tree" id="fileTree">
+        <!-- Arquivos serão carregados aqui -->
+    </div>
+    
+    <!-- Informações do usuário (se autenticado) -->
+    <div class="user-info" id="userInfo" style="display: none;">
+        <div class="user-avatar">
+            <img id="userAvatar" src="" alt="Avatar" class="rounded-circle">
+        </div>
+        <div class="user-details">
+            <div class="user-name" id="userName"></div>
+            <div class="user-email" id="userEmail"></div>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm logout-btn" id="logoutBtn" title="Sair">
+            <i class="bi bi-box-arrow-right"></i>
+        </button>
+    </div>
+</div>
