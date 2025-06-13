@@ -46,7 +46,7 @@ temp/
 .npm
 
 # Uploads (opcional - remova se quiser versionar)
-uploads/
+#uploads/
 
 # Markdown files (opcional - remova se quiser versionar)
-markdown-files/
+#markdown-files/
