@@ -1,3 +1,0 @@
-# teste_vini 2
-
-Comece a escrever aqui...
