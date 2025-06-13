@@ -1,0 +1,3 @@
+# texte-de-exclusão
+
+Comece a escrever aqui...
