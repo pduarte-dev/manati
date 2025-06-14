@@ -2,8 +2,6 @@
 
 ## Código Inline vs Blocos de Código
 
-### ✅ Código Inline (uma linha)  
-
 Use `console.log()` para imprimir no console.
 A função `parseInt()` converte string para número.
 O comando `git status` mostra o status do repositório.
