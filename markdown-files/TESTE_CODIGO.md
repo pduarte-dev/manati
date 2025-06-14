@@ -2,7 +2,7 @@
 
 ## Código Inline vs Blocos de Código
 
-### ✅ Código Inline (uma linha)
+### ✅ Código Inline (uma linha)  
 
 Use `console.log()` para imprimir no console.
 A função `parseInt()` converte string para número.

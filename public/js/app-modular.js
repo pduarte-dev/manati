@@ -18,6 +18,9 @@ class ManatiEditor {
         this.hasUnsavedChanges = false;
         this.activeEditor = 'preview'; // 'markdown', 'visual', 'preview'
         
+        // Usar logger global (já inicializado via script tag)
+        this.logger = window.logger;
+        
         // Definir a instância globalmente antes de inicializar módulos
         window.manatiEditor = this;
         
@@ -40,7 +43,7 @@ class ManatiEditor {
         try {
             await this.authManager.init();
         } catch (error) {
-            window.logger.error('❌ Erro ao inicializar autenticação:', error);
+            this.logger.error('❌ Erro ao inicializar autenticação:', error);
             return; // Parar inicialização se autenticação falhar
         }
 
@@ -55,13 +58,13 @@ class ManatiEditor {
             if (!isValidInstance) {
                 try {
                     window.visualEditor = new VisualEditor();
-                    window.logger.debug('✅ VisualEditor inicializado com sucesso!');
+                    this.logger.debug('✅ VisualEditor inicializado com sucesso!');
                 } catch (error) {
-                    window.logger.error('❌ Erro ao inicializar VisualEditor:', error);
+                    this.logger.error('❌ Erro ao inicializar VisualEditor:', error);
                 }
             }
         } else {
-            window.logger.warn('⚠️ VisualEditor não disponível');
+            this.logger.warn('⚠️ VisualEditor não disponível');
         }
         
         this.bindEvents();
@@ -82,6 +85,9 @@ class ManatiEditor {
         document.getElementById('newFileBtn').addEventListener('click', () => this.showNewFileModal());
         document.getElementById('newFolderBtn').addEventListener('click', () => this.showNewFolderModal());
         document.getElementById('themeToggle').addEventListener('click', () => this.themeManager.toggleTheme());
+        
+        // Botões de documento
+        document.getElementById('closeDocumentBtn').addEventListener('click', () => this.closeCurrentDocument());
 
         // Modais
         document.getElementById('createFileBtn').addEventListener('click', () => this.createNewFile());
@@ -142,6 +148,41 @@ class ManatiEditor {
     // Método de conveniência para carregar arquivo (chamado pelos módulos)
     loadFile(filePath) {
         this.fileManager.loadFile(filePath);
+    }
+
+    // Fechar documento atual e voltar para o estado sem documento selecionado
+    async closeCurrentDocument() {
+        this.logger.debug('🗂️ Fechando documento atual...');
+        
+        // Liberar lock do arquivo atual se existir
+        if (this.currentFile && this.fileLock) {
+            this.logger.debug('🔓 Liberando lock do arquivo:', this.currentFile);
+            await this.fileLock.releaseLock(this.currentFile);
+        }
+        
+        // Limpar estado do documento atual
+        this.currentFile = null;
+        
+        // Limpar editores
+        this.fileManager.clearAllEditors();
+        
+        // Ocultar controles do documento
+        this.ui.hideDocumentControls();
+        
+        // Esconder informações do arquivo
+        const fileInfo = document.getElementById('fileInfo');
+        if (fileInfo) {
+            fileInfo.style.display = 'none';
+        }
+        
+        // Voltar para a aba de Preview
+        const previewTab = document.querySelector('[data-bs-target="#preview-tab"]');
+        if (previewTab) {
+            previewTab.click();
+        }
+        
+        this.logger.debug('✅ Documento fechado com sucesso');
+        //this.ui.showToast('Documento fechado', 'info');
     }
 }
 

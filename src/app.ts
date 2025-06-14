@@ -8,12 +8,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { marked } from 'marked';
 import config from './config/environment.js';
+import { logger } from './utils/logger.js';
 import fileRoutes from './routes/fileRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import gitRoutes from './routes/gitRoutes.js';
 import { authService } from './services/authService.js';
-import logger from './utils/logger.js';
 
 // Equivalente ao __dirname em módulos ES
 const __filename = fileURLToPath(import.meta.url);
@@ -67,7 +67,10 @@ export function createApp(): express.Application {
     // Rotas de autenticação (sempre disponíveis)
     app.use('/', authRoutes);
 
-    // Middleware de autenticação para rotas protegidas
+    // Rotas Git com middleware de autenticação específico
+    app.use('/api/git', authService.requireAuth.bind(authService), gitRoutes);
+
+    // Middleware de autenticação para outras rotas protegidas
     app.use('/api', authService.requireAuth.bind(authService));
 
     // Configurar marked para preview
@@ -79,7 +82,6 @@ export function createApp(): express.Application {
     // Rotas da API (protegidas)
     app.use('/api', fileRoutes);
     app.use('/api', uploadRoutes);
-    app.use('/api/git', gitRoutes);
 
     // Rota para preview de markdown
     app.post('/api/preview', (req, res) => {
@@ -93,7 +95,7 @@ export function createApp(): express.Application {
             const html = marked.parse(markdown);
             return res.json({ html });
         } catch (error) {
-            console.error('Erro ao processar markdown:', error);
+            logger.error('Erro ao processar markdown:', error);
             return res.status(500).json({ error: 'Erro ao processar markdown' });
         }
     });

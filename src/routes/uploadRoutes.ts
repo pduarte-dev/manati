@@ -3,6 +3,7 @@
  */
 import { Router, Request, Response } from 'express';
 import { UploadService } from '../services/uploadService.js';
+import { logger } from '../utils/logger.js';
 
 const router = Router();
 const uploadService = new UploadService();
@@ -13,7 +14,7 @@ router.post('/upload', (req: Request, res: Response) => {
     
     upload(req, res, (error: any) => {
         if (error) {
-            console.error('Erro no upload:', error);
+            logger.error('Erro no upload:', error);
             const errorResponse = uploadService.generateErrorResponse(error);
             return res.status(400).json(errorResponse);
         }

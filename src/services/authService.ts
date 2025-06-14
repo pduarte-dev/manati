@@ -4,7 +4,7 @@
 import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import config from '../config/environment.js';
-import logger from '../utils/logger.js';
+import { logger } from '../utils/logger.js';
 
 export interface User {
     id: string;

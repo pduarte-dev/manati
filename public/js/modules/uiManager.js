@@ -64,7 +64,7 @@ export class UIManager {
 
     toggleSidebar() {
         // Sidebar sempre visível - funcionalidade desabilitada
-        console.log('Sidebar sempre visível - toggle desabilitado');
+        window.logger.debug('Sidebar sempre visível - toggle desabilitado');
     }
 
     showToast(message, type = 'info') {
@@ -223,5 +223,65 @@ export class UIManager {
                 inputField.select();
             }, 300);
         });
+    }
+
+    /**
+     * Mostra os controles do documento quando um arquivo está aberto
+     */
+    showDocumentControls() {
+        const documentActions = document.getElementById('documentActions');
+        if (documentActions) {
+            documentActions.style.display = 'block';
+        }
+        
+        // Habilitar abas do editor
+        this.enableEditorTabs();
+    }
+
+    /**
+     * Oculta os controles do documento quando nenhum arquivo está aberto
+     */
+    hideDocumentControls() {
+        const documentActions = document.getElementById('documentActions');
+        if (documentActions) {
+            documentActions.style.display = 'none';
+        }
+        
+        // Desabilitar abas do editor
+        this.disableEditorTabs();
+    }
+
+    /**
+     * Alterna entre busca e botões normais da sidebar
+     */
+    toggleSearch(show = null) {
+        const normalActions = document.getElementById('normalActions');
+        const searchContainer = document.getElementById('searchContainer');
+        const searchInput = document.getElementById('fileSearchInput');
+        
+        if (show === null) {
+            // Auto-detectar baseado no estado atual
+            show = searchContainer && searchContainer.style.display === 'none';
+        }
+        
+        if (show) {
+            // Mostrar busca
+            if (normalActions) normalActions.style.display = 'none';
+            if (searchContainer) searchContainer.style.display = 'block';
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.value = '';
+            }
+        } else {
+            // Mostrar botões normais
+            if (normalActions) normalActions.style.display = 'flex';
+            if (searchContainer) searchContainer.style.display = 'none';
+            if (searchInput) searchInput.value = '';
+            
+            // Limpar busca se necessário
+            if (window.manatiEditor && window.manatiEditor.fileManager) {
+                window.manatiEditor.fileManager.clearSearch();
+            }
+        }
     }
 }

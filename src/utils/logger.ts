@@ -1,7 +1,7 @@
 /**
  * Utilidades de logging controladas por variável de ambiente
  */
-import { config } from '../config/environment.js';
+import config from '../config/environment.js';
 
 export const logger = {
     debug: (...args: any[]) => {

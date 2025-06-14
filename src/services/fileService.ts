@@ -4,7 +4,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import config from '../config/environment.js';
-import logger from '../utils/logger.js';
+import { logger } from '../utils/logger.js';
 
 export class FileService {
     private markdownDir: string;
@@ -59,7 +59,7 @@ export class FileService {
                 return a.name.localeCompare(b.name);
             });
         } catch (error) {
-            console.error('Erro ao listar arquivos:', error);
+            logger.error('Erro ao listar arquivos:', error);
             throw new Error('Erro ao acessar diretório');
         }
     }

@@ -907,3 +907,40 @@ body, html {
         height: 28px;
     }
 }
+
+/* =====================================
+   ESTILOS PARA PÁGINA DE LOGIN
+   ===================================== */
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.title-navbar {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #19c498; /* Cor azul-verde do Manati */
+    margin-bottom: 4px;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== FIM DOS ESTILOS PARA ÁREA DO USUÁRIO ===== */

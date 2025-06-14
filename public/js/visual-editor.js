@@ -260,7 +260,7 @@ class VisualEditor {
                     this.hideUploadProgress();
                     this.showToast(`Imagem ${file.name} enviada com sucesso!`, 'success');
                 } catch (error) {
-                    console.error('Erro ao fazer upload da imagem:', error);
+                    window.manatiEditor.logger.error('Erro ao fazer upload da imagem:', error);
                     this.hideUploadProgress();
                     this.showToast(`Erro ao enviar ${file.name}`, 'error');
                 }
@@ -282,7 +282,7 @@ class VisualEditor {
                 this.hideUploadProgress();
                 this.showToast(`Arquivo ${file.name} enviado com sucesso!`, 'success');
             } catch (error) {
-                console.error('Erro ao fazer upload do arquivo:', error);
+                window.manatiEditor.logger.error('Erro ao fazer upload do arquivo:', error);
                 this.hideUploadProgress();
                 this.showToast(`Erro ao enviar ${file.name}`, 'error');
             }

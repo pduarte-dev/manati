@@ -22,7 +22,7 @@ export class AuthManager {
             this.setupEventListeners();
             this.updateUI();
         } catch (error) {
-            console.error('Erro ao inicializar autenticação:', error);
+            window.logger.error('Erro ao inicializar autenticação:', error);
         }
     }
 
@@ -43,7 +43,7 @@ export class AuthManager {
 
             return data;
         } catch (error) {
-            console.error('Erro ao verificar status de autenticação:', error);
+            window.logger.error('Erro ao verificar status de autenticação:', error);
             throw error;
         }
     }
@@ -160,7 +160,7 @@ export class AuthManager {
                 throw new Error('Erro no logout');
             }
         } catch (error) {
-            console.error('Erro no logout:', error);
+            window.logger.error('Erro no logout:', error);
             
             // Restaurar botão
             const logoutBtn = document.getElementById('logoutBtn');

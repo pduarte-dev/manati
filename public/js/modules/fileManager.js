@@ -158,7 +158,7 @@ export class FileManager {
                 }, 100);
             }
         } catch (error) {
-            console.error('Erro ao carregar árvore de arquivos:', error);
+            window.logger.error('Erro ao carregar árvore de arquivos:', error);
             window.manatiEditor.ui.showToast('Erro ao carregar arquivos', 'error');
         }
     }
@@ -174,6 +174,7 @@ export class FileManager {
             const data = await response.json();
             
             if (response.ok) {
+                window.logger.debug('🔍 Definindo currentFile como:', filePath);
                 window.manatiEditor.currentFile = filePath;
                 document.getElementById('markdownEditor').value = data.content;
                 document.getElementById('currentFileName').textContent = filePath;
@@ -257,6 +258,9 @@ export class FileManager {
                 window.manatiEditor.ui.updateSaveButton();
                 this.highlightCurrentFile();
                 
+                // Mostrar controles do documento
+                window.manatiEditor.ui.showDocumentControls();
+                
                 // Atualizar ícones da árvore de arquivos
                 if (window.manatiEditor.fileLock) {
                     window.manatiEditor.fileLock.updateFileTreeIcons();
@@ -265,7 +269,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(data.error, 'error');
             }
         } catch (error) {
-            console.error('Erro ao carregar arquivo:', error);
+            window.logger.error('Erro ao carregar arquivo:', error);
             window.manatiEditor.ui.showToast('Erro ao carregar arquivo', 'error');
         }
     }
@@ -294,9 +298,16 @@ export class FileManager {
                 window.manatiEditor.ui.updateSaveButton();
                 window.manatiEditor.ui.showToast('Arquivo salvo com sucesso!', 'success');
                 
+                window.logger.debug('🔄 Arquivo salvo, chamando GitManager...');
+                window.logger.debug('📁 Arquivo:', window.manatiEditor.currentFile);
+                window.logger.debug('🔧 GitManager existe:', !!window.manatiEditor.git);
+                
                 // Marcar arquivo como modificado no GitManager
                 if (window.manatiEditor.git) {
+                    window.logger.debug('✅ Chamando markFileAsModified...');
                     window.manatiEditor.git.markFileAsModified(window.manatiEditor.currentFile);
+                } else {
+                    window.logger.error('❌ GitManager não encontrado!');
                 }
                 
                 // Atualizar ícones de lock após salvar
@@ -307,7 +318,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(data.error, 'error');
             }
         } catch (error) {
-            console.error('Erro ao salvar arquivo:', error);
+            window.logger.error('Erro ao salvar arquivo:', error);
             window.manatiEditor.ui.showToast('Erro ao salvar arquivo', 'error');
         }
     }
@@ -335,6 +346,7 @@ export class FileManager {
             const data = await response.json();
             
             if (response.ok) {
+                window.logger.debug('✅ Arquivo excluído com sucesso do filesystem:', filePath);
                 this.loadFileTree(this.currentPath);
                 
                 // Se o arquivo excluído era o atual, limpar todos os editores
@@ -342,12 +354,31 @@ export class FileManager {
                     this.clearAllEditors();
                 }
                 
+                // 🗑️ Marcar arquivo como excluído no Git se for um arquivo .md
+                window.logger.debug('🔍 Verificando se deve marcar no Git...');
+                window.logger.debug('🔍 Arquivo termina com .md:', filePath.endsWith('.md'));
+                window.logger.debug('🔍 window.manatiEditor existe:', !!window.manatiEditor);
+                window.logger.debug('🔍 window.manatiEditor.git existe:', !!window.manatiEditor.git);
+                
+                if (filePath.endsWith('.md') && window.manatiEditor.git) {
+                    window.logger.debug('🗑️ Marcando arquivo como excluído no Git:', filePath);
+                    window.logger.debug('🗑️ GitManager disponível:', !!window.manatiEditor.git);
+                    window.logger.debug('🗑️ Git disponível:', window.manatiEditor.git.isGitAvailable);
+                    window.manatiEditor.git.markFileAsDeleted(filePath);
+                } else {
+                    window.logger.debug('⚠️ Não marcando no Git. Condições:', {
+                        isMarkdown: filePath.endsWith('.md'),
+                        hasManatiEditor: !!window.manatiEditor,
+                        hasGitManager: !!window.manatiEditor?.git
+                    });
+                }
+                
                 window.manatiEditor.ui.showToast('Arquivo excluído com sucesso!', 'success');
             } else {
                 window.manatiEditor.ui.showToast(data.error, 'error');
             }
         } catch (error) {
-            console.error('Erro ao excluir arquivo:', error);
+            window.logger.error('Erro ao excluir arquivo:', error);
             window.manatiEditor.ui.showToast('Erro ao excluir arquivo', 'error');
         }
     }
@@ -379,7 +410,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(data.error, 'error');
             }
         } catch (error) {
-            console.error('Erro ao criar arquivo:', error);
+            window.logger.error('Erro ao criar arquivo:', error);
             window.manatiEditor.ui.showToast('Erro ao criar arquivo', 'error');
         }
     }
@@ -406,7 +437,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(data.error, 'error');
             }
         } catch (error) {
-            console.error('Erro ao criar pasta:', error);
+            window.logger.error('Erro ao criar pasta:', error);
             window.manatiEditor.ui.showToast('Erro ao criar pasta', 'error');
         }
     }
@@ -427,6 +458,14 @@ export class FileManager {
         if (!confirmed) return;
 
         try {
+            // 🗑️ PRIMEIRO: Marcar todos os arquivos .md da pasta como excluídos no Git
+            // (Deve ser feito ANTES de excluir a pasta do filesystem)
+            if (window.manatiEditor.git) {
+                window.logger.debug('🗑️ Processando exclusão da pasta no Git:', folderPath);
+                await this.markFolderFilesAsDeleted(folderPath);
+            }
+            
+            // DEPOIS: Excluir a pasta do filesystem
             const response = await fetch(`/api/folder/${encodeURIComponent(folderPath)}`, {
                 method: 'DELETE'
             });
@@ -434,6 +473,8 @@ export class FileManager {
             const data = await response.json();
             
             if (response.ok) {
+                window.logger.debug('✅ Pasta excluída com sucesso do filesystem:', folderPath);
+                
                 // Recarregar a árvore de arquivos
                 this.loadFileTree(this.currentPath);
                 
@@ -447,7 +488,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(data.error, 'error');
             }
         } catch (error) {
-            console.error('Erro ao excluir pasta:', error);
+            window.logger.error('Erro ao excluir pasta:', error);
             window.manatiEditor.ui.showToast('Erro ao excluir pasta', 'error');
         }
     }
@@ -512,7 +553,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(result.error || 'Erro ao renomear arquivo', 'error');
             }
         } catch (error) {
-            console.error('Erro ao renomear arquivo:', error);
+            window.logger.error('Erro ao renomear arquivo:', error);
             window.manatiEditor.ui.showToast('Erro ao renomear arquivo', 'error');
         }
     }
@@ -573,7 +614,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(result.error || 'Erro ao renomear pasta', 'error');
             }
         } catch (error) {
-            console.error('Erro ao renomear pasta:', error);
+            window.logger.error('Erro ao renomear pasta:', error);
             window.manatiEditor.ui.showToast('Erro ao renomear pasta', 'error');
         }
     }
@@ -712,7 +753,7 @@ export class FileManager {
             // Mostrar modal
             window.manatiEditor.ui.showModal('moveItemModal');
         } catch (error) {
-            console.error('Erro ao preparar movimentação de arquivo:', error);
+            window.logger.error('Erro ao preparar movimentação de arquivo:', error);
             window.manatiEditor.ui.showToast('Erro ao preparar movimentação', 'error');
         }
     }
@@ -741,7 +782,7 @@ export class FileManager {
             // Mostrar modal
             window.manatiEditor.ui.showModal('moveItemModal');
         } catch (error) {
-            console.error('Erro ao preparar movimentação de pasta:', error);
+            window.logger.error('Erro ao preparar movimentação de pasta:', error);
             window.manatiEditor.ui.showToast('Erro ao preparar movimentação', 'error');
         }
     }
@@ -775,7 +816,7 @@ export class FileManager {
                 select.appendChild(option);
             });
         } catch (error) {
-            console.error('Erro ao carregar pastas:', error);
+            window.logger.error('Erro ao carregar pastas:', error);
             throw error;
         }
     }
@@ -798,7 +839,7 @@ export class FileManager {
             
             return folders;
         } catch (error) {
-            console.error('Erro ao obter todas as pastas:', error);
+            window.logger.error('Erro ao obter todas as pastas:', error);
             return [];
         }
     }
@@ -855,7 +896,7 @@ export class FileManager {
                 window.manatiEditor.ui.showToast(result.error || 'Erro ao mover item', 'error');
             }
         } catch (error) {
-            console.error('Erro ao mover item:', error);
+            window.logger.error('Erro ao mover item:', error);
             window.manatiEditor.ui.showToast('Erro ao mover item', 'error');
         }
     }
@@ -864,97 +905,47 @@ export class FileManager {
         const searchInput = document.getElementById('fileSearchInput');
         const clearBtn = document.getElementById('clearSearchBtn');
         const toggleBtn = document.getElementById('toggleSearchBtn');
-        const searchInputGroup = document.getElementById('searchInputGroup');
-        const newFolderBtn = document.getElementById('newFolderBtn');
         
-        if (!searchInput || !clearBtn || !toggleBtn || !searchInputGroup || !newFolderBtn) return;
+        if (!searchInput || !clearBtn || !toggleBtn) return;
         
         let searchTimeout;
-        let isSearchVisible = false;
         
-        // Função para mostrar campo de busca
-        const showSearch = () => {
-            // Ocultar botão Nova Pasta
-            newFolderBtn.classList.add('hiding');
-            
-            setTimeout(() => {
-                newFolderBtn.style.display = 'none';
-                searchInputGroup.style.display = 'flex';
-                
-                // Pequeno delay para suavizar a transição
-                setTimeout(() => {
-                    searchInputGroup.classList.add('showing');
-                    toggleBtn.classList.add('active');
-                    searchInput.focus();
-                    isSearchVisible = true;
-                }, 50);
-            }, 150);
-        };
-        
-        // Função para ocultar campo de busca
-        const hideSearch = () => {
-            searchInputGroup.classList.remove('showing');
-            toggleBtn.classList.remove('active');
-            
-            setTimeout(() => {
-                searchInputGroup.style.display = 'none';
-                newFolderBtn.style.display = 'block';
-                
-                setTimeout(() => {
-                    newFolderBtn.classList.remove('hiding');
-                    searchInput.value = '';
-                    isSearchVisible = false;
-                    // Voltar para a visualização normal
-                    this.loadFileTree(this.currentPath);
-                }, 50);
-            }, 150);
-        };
-        
-        // Toggle do botão de busca
+        // Event listener para o botão de toggle da busca
         toggleBtn.addEventListener('click', () => {
-            if (isSearchVisible) {
-                hideSearch();
-            } else {
-                showSearch();
-            }
+            window.manatiEditor.ui.toggleSearch(true);
         });
         
-        // Input de busca
+        // Event listener para o botão de fechar busca
+        clearBtn.addEventListener('click', () => {
+            window.manatiEditor.ui.toggleSearch(false);
+        });
+        
+        // Event listener para busca em tempo real
         searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
             const query = e.target.value.trim();
             
-            // Debounce search
-            clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                if (query) {
-                    this.performSearch(query);
-                } else {
-                    this.loadFileTree(this.currentPath);
-                }
+                this.filterFiles(query);
             }, 300);
         });
         
-        // Botão limpar busca
-        clearBtn.addEventListener('click', () => {
-            hideSearch();
-        });
-        
-        // Enter para buscar
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchInput.value.trim();
-                if (query) {
-                    this.performSearch(query);
-                }
-            }
-        });
-        
-        // ESC para fechar busca
+        // Fechar busca com ESC
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                hideSearch();
+                window.manatiEditor.ui.toggleSearch(false);
             }
         });
+    }
+
+    // Método para limpar busca
+    clearSearch() {
+        const searchInput = document.getElementById('fileSearchInput');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        // Voltar para a visualização normal
+        this.loadFileTree(this.currentPath);
     }
 
     async performSearch(query) {
@@ -963,7 +954,7 @@ export class FileManager {
             const results = await this.searchFiles(sanitizedQuery);
             this.displaySearchResults(results, query);
         } catch (error) {
-            console.error('Erro na busca:', error);
+            window.logger.error('Erro na busca:', error);
             window.manatiEditor.ui.showToast('Erro ao realizar busca', 'error');
         }
     }
@@ -994,7 +985,7 @@ export class FileManager {
                 return nameMatch || titleMatch;
             });
         } catch (error) {
-            console.error('Erro ao buscar arquivos:', error);
+            window.logger.error('Erro ao buscar arquivos:', error);
             return [];
         }
     }
@@ -1018,7 +1009,7 @@ export class FileManager {
             
             return allFiles;
         } catch (error) {
-            console.error('Erro ao obter arquivos recursivos:', error);
+            window.logger.error('Erro ao obter arquivos recursivos:', error);
             return [];
         }
     }
@@ -1115,5 +1106,56 @@ export class FileManager {
         
         const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
         return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    /**
+     * Marca todos os arquivos .md de uma pasta como excluídos no Git
+     */
+    async markFolderFilesAsDeleted(folderPath) {
+        try {
+            window.logger.debug('🔍 Obtendo lista de arquivos da pasta antes de excluir:', folderPath);
+            
+            // Buscar todos os arquivos da pasta antes de excluí-la
+            const response = await fetch(`/api/files?path=${encodeURIComponent(folderPath)}`);
+            
+            if (!response.ok) {
+                window.logger.error('❌ Erro ao listar arquivos da pasta:', response.status, response.statusText);
+                return;
+            }
+            
+            const files = await response.json();
+            window.logger.debug('📁 Arquivos encontrados na pasta:', files);
+            
+            if (Array.isArray(files) && files.length > 0) {
+                let markedCount = 0;
+                
+                for (const file of files) {
+                    if (!file.isDirectory && file.path.endsWith('.md')) {
+                        window.logger.debug('🗑️ Marcando arquivo como excluído no Git:', file.path);
+                        window.manatiEditor.git.markFileAsDeleted(file.path);
+                        markedCount++;
+                    } else if (file.isDirectory) {
+                        // Recursivamente processar subpastas
+                        window.logger.debug('📁 Processando subpasta:', file.path);
+                        await this.markFolderFilesAsDeleted(file.path);
+                    }
+                }
+                
+                window.logger.debug(`✅ ${markedCount} arquivo(s) .md marcado(s) como excluído(s) no Git`);
+            } else {
+                window.logger.debug('ℹ️ Nenhum arquivo encontrado na pasta ou pasta vazia');
+            }
+        } catch (error) {
+            window.logger.error('❌ Erro ao marcar arquivos da pasta como excluídos:', error);
+        }
+    }
+
+    // Método para filtrar arquivos em tempo real
+    filterFiles(query) {
+        if (!query) {
+            this.loadFileTree(this.currentPath);
+            return;
+        }
+        this.performSearch(query);
     }
 }

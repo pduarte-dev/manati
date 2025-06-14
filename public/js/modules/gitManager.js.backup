@@ -1,0 +1,574 @@
+/**
+ * Módulo para gerenciamento de Git - Controle de Versão
+ */
+export class GitManager {
+    constructor() {
+        this.modifiedFiles = new Set(); // Arquivos modificados pelo usuário atual
+        this.deletedFiles = new Set(); // Arquivos excluídos pelo usuário atual
+             // 🔧 CORREÇÃO FINAL: Garantir que todos os arquivos tenham o caminho completo
+            filesToCommit = filesToCommit.map(file => {
+                if (!file.includes('/') && file.endsWith('.md')) {
+                    const correctedPath = `${this.markdownPath}/${file}`;
+                    window.manatiEditor.logger.debug('🔧 Corrigindo caminho no commit:', file, '→', correctedPath);
+                    return correctedPath;
+                }
+                return file;
+            });
+            
+            filesToDelete = filesToDelete.map(file => {
+                if (!file.includes('/') && file.endsWith('.md')) {
+                    const correctedPath = `${this.markdownPath}/${file}`;
+                    window.manatiEditor.logger.debug('🔧 Corrigindo caminho no commit (exclusão):', file, '→', correctedPath);
+                    return correctedPath;
+                }
+                return file;
+            });mmits = new Map(); // Mapa de arquivo -> último commit do usuário
+        this.isGitAvailable = false;
+        this.currentUser = null;
+        this.markdownPath = 'markdown-files'; // Default, será atualizado via configuração
+        this.configLoaded = false;
+    }
+
+    /**
+     * Inicializa o gerenciador de Git
+     */
+    async init() {
+        window.manatiEditor.logger.debug('🔄 Inicializando GitManager...');
+        
+        try {
+            // Carregar configurações do servidor
+            await this.loadConfiguration();
+            
+            // Configurar botão de Git primeiro
+            this.setupGitButton();
+            
+            // Verificar se Git está disponível
+            const gitStatus = await this.checkGitStatus();
+            this.isGitAvailable = gitStatus.available;
+            
+            window.manatiEditor.logger.debug('🔍 Status do Git:', gitStatus);
+            
+            if (this.isGitAvailable) {
+                window.manatiEditor.logger.debug('✅ Git disponível - repositório detectado');
+                await this.loadModifiedFiles();
+                this.loadModifiedFilesFromStorage(); // 💾 Carregar do localStorage
+                this.updateGitButton();
+            } else {
+                window.manatiEditor.logger.debug('ℹ️ Git não disponível ou não é um repositório');
+                this.disableGitFeatures();
+            }
+        } catch (error) {
+            window.manatiEditor.logger.error('❌ Erro ao inicializar Git:', error);
+            this.disableGitFeatures();
+        }
+    }
+
+    /**
+     * Configura o botão de Git
+     */
+    setupGitButton() {
+        const gitBtn = document.getElementById('gitCommitBtn');
+        if (gitBtn) {
+            gitBtn.addEventListener('click', () => this.commitModifiedFiles());
+        }
+    }
+
+    /**
+     * Verifica status do Git
+     */
+    async checkGitStatus() {
+        try {
+            window.manatiEditor.logger.debug('🔍 Fazendo requisição para /api/git/status...');
+            const response = await fetch('/api/git/status', {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            window.manatiEditor.logger.debug('📡 Response status:', response.status);
+            window.manatiEditor.logger.debug('📡 Response ok:', response.ok);
+            
+            if (!response.ok) {
+                window.manatiEditor.logger.error('❌ Resposta não OK:', response.status, response.statusText);
+                const text = await response.text();
+                window.manatiEditor.logger.error('❌ Response body:', text.substring(0, 200));
+                return { available: false, error: `HTTP ${response.status}` };
+            }
+            
+            const text = await response.text();
+            window.manatiEditor.logger.debug('📄 Response text (primeiros 200 chars):', text.substring(0, 200));
+            
+            try {
+                const data = JSON.parse(text);
+                window.manatiEditor.logger.debug('✅ Data recebida:', data);
+                return data;
+            } catch (jsonError) {
+                window.manatiEditor.logger.error('❌ Erro ao fazer parse JSON:', jsonError);
+                window.manatiEditor.logger.error('❌ Texto completo:', text);
+                return { available: false, error: 'Resposta inválida do servidor' };
+            }
+        } catch (error) {
+            window.manatiEditor.logger.error('Erro ao verificar status do Git:', error);
+            return { available: false };
+        }
+    }
+
+    /**
+     * Carrega arquivos modificados APENAS deste usuário
+     * Não carrega arquivos do Git status - apenas os marcados localmente
+     */
+    async loadModifiedFiles() {
+        // Não fazer nada aqui - os arquivos modificados são rastreados
+        // localmente quando o usuário salva arquivos
+        // Isso garante que cada usuário só veja seus próprios arquivos modificados
+        window.manatiEditor.logger.debug('📁 Arquivos modificados pelo usuário atual:', Array.from(this.modifiedFiles));
+    }
+
+    /**
+     * Marca um arquivo como modificado
+     */
+    markFileAsModified(filePath) {
+        window.manatiEditor.logger.debug('🔍 GitManager.markFileAsModified chamado para:', filePath);
+        window.manatiEditor.logger.debug('🔍 Git disponível:', this.isGitAvailable);
+        
+        if (!this.isGitAvailable) {
+            window.manatiEditor.logger.debug('⚠️ Git não está disponível, não marcando arquivo como modificado');
+            return;
+        }
+        
+        // 🔧 CORREÇÃO: Garantir que o caminho está correto
+        let fullPath = filePath;
+        if (!fullPath.includes('/') && fullPath.endsWith('.md')) {
+            // Se é apenas um nome de arquivo .md, assumir que está no diretório markdown
+            fullPath = `${this.markdownPath}/${filePath}`;
+            window.manatiEditor.logger.debug('🔧 Corrigindo caminho de:', filePath, 'para:', fullPath);
+        }
+        
+        this.modifiedFiles.add(fullPath);
+        this.updateFileIcons();
+        this.updateGitButton();
+        
+        // 💾 Salvar no localStorage para persistir entre sessões
+        this.saveModifiedFilesToStorage();
+        
+        window.manatiEditor.logger.debug(`📝 Arquivo marcado como modificado: ${fullPath}`);
+        window.manatiEditor.logger.debug(`📝 Total de arquivos modificados: ${this.modifiedFiles.size}`);
+    }
+
+    /**
+     * Remove um arquivo da lista de modificados
+     */
+    unmarkFileAsModified(filePath) {
+        this.modifiedFiles.delete(filePath);
+        this.updateFileIcons();
+        this.updateGitButton();
+    }
+
+    /**
+     * Marca um arquivo como excluído
+     */
+    markFileAsDeleted(filePath) {
+        window.manatiEditor.logger.debug('🗑️ GitManager.markFileAsDeleted chamado para:', filePath);
+        window.manatiEditor.logger.debug('🔍 Git disponível:', this.isGitAvailable);
+        
+        if (!this.isGitAvailable) {
+            window.manatiEditor.logger.debug('⚠️ Git não está disponível, não marcando arquivo como excluído');
+            return;
+        }
+        
+        // 🔧 CORREÇÃO: Garantir que o caminho está correto
+        let fullPath = filePath;
+        if (!fullPath.includes('/') && fullPath.endsWith('.md')) {
+            // Se é apenas um nome de arquivo .md, assumir que está no diretório markdown
+            fullPath = `${this.markdownPath}/${filePath}`;
+            window.manatiEditor.logger.debug('🔧 Corrigindo caminho de:', filePath, 'para:', fullPath);
+        }
+        
+        // Remover da lista de modificados se estiver lá
+        this.modifiedFiles.delete(fullPath);
+        
+        // Adicionar à lista de excluídos
+        this.deletedFiles.add(fullPath);
+        this.updateFileIcons();
+        this.updateGitButton();
+        
+        // 💾 Salvar no localStorage para persistir entre sessões
+        this.saveModifiedFilesToStorage();
+        
+        window.manatiEditor.logger.debug(`🗑️ Arquivo marcado como excluído: ${fullPath}`);
+        window.manatiEditor.logger.debug(`📝 Total de arquivos modificados: ${this.modifiedFiles.size}`);
+        window.manatiEditor.logger.debug(`🗑️ Total de arquivos excluídos: ${this.deletedFiles.size}`);
+    }
+
+    /**
+     * Atualiza os ícones na árvore de arquivos
+     */
+    updateFileIcons() {
+        const fileItems = document.querySelectorAll('.file-item:not(.folder)');
+        
+        fileItems.forEach(item => {
+            const filePath = item.dataset?.filePath;
+            if (!filePath) return;
+            
+            const icon = item.querySelector('i.bi');
+            if (!icon) return;
+            
+            // Remover classes git anteriores
+            item.classList.remove('file-modified');
+            icon.classList.remove('text-info');
+            
+            if (this.modifiedFiles.has(filePath)) {
+                // Arquivo modificado - ícone azul
+                item.classList.add('file-modified');
+                
+                // Verificar se não tem lock ativo (lock tem prioridade)
+                if (!item.classList.contains('file-locked')) {
+                    icon.classList.add('text-info');
+                }
+            }
+        });
+    }
+
+    /**
+     * Atualiza o botão de Git
+     */
+    updateGitButton() {
+        const modifiedCount = this.modifiedFiles.size;
+        const deletedCount = this.deletedFiles.size;
+        const totalChanges = modifiedCount + deletedCount;
+        
+        window.manatiEditor.logger.debug('🔍 Atualizando botão Git. Modificados:', modifiedCount, 'excluídos:', deletedCount, 'total:', totalChanges);
+        
+        const gitBtn = document.getElementById('gitCommitBtn');
+        const countBadge = document.getElementById('modifiedFilesCount');
+        const btnText = document.getElementById('gitBtnText');
+        
+        if (!gitBtn) {
+            window.manatiEditor.logger.debug('❌ Botão gitCommitBtn não encontrado');
+            return;
+        }
+        
+        if (totalChanges > 0) {
+            gitBtn.disabled = false;
+            gitBtn.title = `Publicar ${modifiedCount} modificado(s) e ${deletedCount} excluído(s)`;
+            countBadge.textContent = totalChanges;
+            countBadge.style.display = 'inline';
+            btnText.textContent = 'Publicar';
+            window.manatiEditor.logger.debug('✅ Botão Git habilitado com', totalChanges, 'alterações');
+        } else {
+            gitBtn.disabled = true;
+            gitBtn.title = 'Nenhuma alteração para publicar';
+            countBadge.style.display = 'none';
+            btnText.textContent = 'Publicar';
+            window.manatiEditor.logger.debug('⚠️ Botão Git desabilitado - nenhum arquivo modificado');
+        }
+    }
+
+    /**
+     * Executa commit dos arquivos modificados
+     */
+    async commitModifiedFiles() {
+        const totalChanges = this.modifiedFiles.size + this.deletedFiles.size;
+        
+        if (totalChanges === 0) {
+            window.manatiEditor.ui.showToast('Nenhuma alteração para publicar', 'info');
+            return;
+        }
+
+        try {
+            // Mostrar modal de confirmação com lista de arquivos
+            const confirmed = await this.showCommitModal();
+            if (!confirmed.confirmed) return;
+
+            // Mostrar loading
+            this.setGitButtonLoading(true);
+
+            // Obter informações do usuário autenticado
+            const userInfo = window.manatiEditor.auth.getUserInfo();
+            let filesToCommit = Array.from(this.modifiedFiles);
+            let filesToDelete = Array.from(this.deletedFiles);
+            
+            // 🔧 CORREÇÃO FINAL: Garantir que todos os arquivos tenham o caminho completo
+            filesToCommit = filesToCommit.map(file => {
+                if (!file.includes('/') && file.endsWith('.md')) {
+                    const correctedPath = `markdown-files/${file}`;
+                    window.manatiEditor.logger.debug('🔧 Corrigindo caminho no commit:', file, '→', correctedPath);
+                    return correctedPath;
+                }
+                return file;
+            });
+            
+            filesToDelete = filesToDelete.map(file => {
+                if (!file.includes('/') && file.endsWith('.md')) {
+                    const correctedPath = `markdown-files/${file}`;
+                    window.manatiEditor.logger.debug('🔧 Corrigindo caminho de exclusão:', file, '→', correctedPath);
+                    return correctedPath;
+                }
+                return file;
+            });
+            
+            window.manatiEditor.logger.debug('🔍 Arquivos que serão commitados (modificados):', filesToCommit);
+            window.manatiEditor.logger.debug('🔍 Arquivos que serão excluídos:', filesToDelete);
+            window.manatiEditor.logger.debug('🔍 Usuário:', userInfo);
+            
+            // Fazer commit
+            const response = await fetch('/api/git/commit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    files: filesToCommit, // Arquivos modificados
+                    deletedFiles: filesToDelete, // Arquivos excluídos
+                    message: confirmed.message,
+                    userId: userInfo.id, // ✅ Adicionar userId para validação
+                    author: {
+                        name: userInfo.name,
+                        email: userInfo.email
+                    }
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Limpar arquivos modificados e excluídos
+                this.modifiedFiles.clear();
+                this.deletedFiles.clear();
+                this.clearModifiedFilesFromStorage(); // 💾 Limpar localStorage
+                this.updateFileIcons();
+                this.updateGitButton();
+                
+                window.manatiEditor.ui.showToast(
+                    `Commit realizado com sucesso!<br>Hash: ${data.commitHash?.substring(0, 7)}`, 
+                    'success'
+                );
+            } else {
+                window.manatiEditor.ui.showToast(
+                    `❌ Erro ao fazer commit: ${data.error}`, 
+                    'error'
+                );
+            }
+        } catch (error) {
+            window.manatiEditor.logger.error('Erro ao fazer commit:', error);
+            window.manatiEditor.ui.showToast('❌ Erro ao publicar alterações', 'error');
+        } finally {
+            this.setGitButtonLoading(false);
+        }
+    }
+
+    /**
+     * Mostra modal de confirmação de commit
+     */
+    async showCommitModal() {
+        const modifiedFilesList = Array.from(this.modifiedFiles).map(file => `📝 ${file}`);
+        const deletedFilesList = Array.from(this.deletedFiles).map(file => `🗑️ ${file}`);
+        const allFiles = [...modifiedFilesList, ...deletedFilesList];
+        const filesList = allFiles.join('\n');
+        
+        return new Promise((resolve) => {
+            // Criar modal dinamicamente
+            const modalHtml = `
+                <div class="modal fade" id="gitCommitModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-git"></i> Publicar Alterações
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Arquivos que serão publicados:</label>
+                                    <div class="border rounded p-2 bg-light" style="max-height: 150px; overflow-y: auto;">
+                                        <pre class="mb-0 small">${filesList}</pre>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="commitMessage" class="form-label fw-bold">Mensagem do commit:</label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="commitMessage" 
+                                        rows="3" 
+                                        placeholder="Descreva as alterações realizadas..."
+                                        required
+                                    >Atualizações via Manati Editor</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-info" id="confirmCommitBtn">
+                                    <i class="bi bi-git"></i> Publicar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Adicionar modal ao DOM
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            const modal = new bootstrap.Modal(document.getElementById('gitCommitModal'));
+            const confirmBtn = document.getElementById('confirmCommitBtn');
+            const messageInput = document.getElementById('commitMessage');
+            
+            confirmBtn.addEventListener('click', () => {
+                const message = messageInput.value.trim();
+                if (!message) {
+                    window.manatiEditor.ui.showToast('Por favor, insira uma mensagem para o commit', 'warning');
+                    return;
+                }
+                
+                modal.hide();
+                resolve({ confirmed: true, message });
+            });
+            
+            // Cleanup quando modal for fechado
+            document.getElementById('gitCommitModal').addEventListener('hidden.bs.modal', () => {
+                document.getElementById('gitCommitModal').remove();
+                resolve({ confirmed: false });
+            });
+            
+            modal.show();
+            messageInput.focus();
+        });
+    }
+
+    /**
+     * Define estado de loading do botão Git
+     */
+    setGitButtonLoading(loading) {
+        const gitBtn = document.getElementById('gitCommitBtn');
+        const btnText = document.getElementById('gitBtnText');
+        const icon = gitBtn.querySelector('i');
+        
+        if (loading) {
+            gitBtn.disabled = true;
+            btnText.textContent = 'Publicando...';
+            icon.className = 'bi bi-hourglass-split';
+        } else {
+            this.updateGitButton(); // Restaurar estado normal
+            icon.className = 'bi bi-git';
+        }
+    }
+
+    /**
+     * Desabilita funcionalidades Git
+     */
+    disableGitFeatures() {
+        const gitBtn = document.getElementById('gitCommitBtn');
+        if (gitBtn) {
+            gitBtn.style.display = 'none';
+        }
+    }
+
+    /**
+     * Hook chamado quando um arquivo é salvo
+     */
+    onFileSaved(filePath) {
+        this.markFileAsModified(filePath);
+    }
+
+    /**
+     * Obtém status dos arquivos modificados
+     */
+    getModifiedFilesStatus() {
+        return {
+            count: this.modifiedFiles.size,
+            files: Array.from(this.modifiedFiles),
+            gitAvailable: this.isGitAvailable
+        };
+    }
+
+    /**
+     * Salva arquivos modificados e excluídos no localStorage
+     */
+    saveModifiedFilesToStorage() {
+        const userInfo = window.manatiEditor.auth.getUserInfo();
+        const modifiedStorageKey = `manati-modified-files-${userInfo.id}`;
+        const deletedStorageKey = `manati-deleted-files-${userInfo.id}`;
+        
+        try {
+            localStorage.setItem(modifiedStorageKey, JSON.stringify(Array.from(this.modifiedFiles)));
+            localStorage.setItem(deletedStorageKey, JSON.stringify(Array.from(this.deletedFiles)));
+            window.manatiEditor.logger.debug('💾 Arquivos modificados e excluídos salvos no localStorage');
+        } catch (error) {
+            window.manatiEditor.logger.error('Erro ao salvar no localStorage:', error);
+        }
+    }
+
+    /**
+     * Carrega arquivos modificados e excluídos do localStorage
+     */
+    loadModifiedFilesFromStorage() {
+        const userInfo = window.manatiEditor.auth.getUserInfo();
+        const modifiedStorageKey = `manati-modified-files-${userInfo.id}`;
+        const deletedStorageKey = `manati-deleted-files-${userInfo.id}`;
+        
+        try {
+            // Carregar arquivos modificados
+            const storedModified = localStorage.getItem(modifiedStorageKey);
+            if (storedModified) {
+                const files = JSON.parse(storedModified);
+                files.forEach(file => this.modifiedFiles.add(file));
+                window.manatiEditor.logger.debug(`💾 ${files.length} arquivos modificados carregados do localStorage`);
+            }
+            
+            // Carregar arquivos excluídos
+            const storedDeleted = localStorage.getItem(deletedStorageKey);
+            if (storedDeleted) {
+                const files = JSON.parse(storedDeleted);
+                files.forEach(file => this.deletedFiles.add(file));
+                window.manatiEditor.logger.debug(`💾 ${files.length} arquivos excluídos carregados do localStorage`);
+            }
+            
+            this.updateFileIcons();
+            this.updateGitButton();
+        } catch (error) {
+            window.manatiEditor.logger.error('Erro ao carregar do localStorage:', error);
+        }
+    }
+
+    /**
+     * Limpa arquivos modificados e excluídos do localStorage
+     */
+    clearModifiedFilesFromStorage() {
+        const userInfo = window.manatiEditor.auth.getUserInfo();
+        const modifiedStorageKey = `manati-modified-files-${userInfo.id}`;
+        const deletedStorageKey = `manati-deleted-files-${userInfo.id}`;
+        
+        try {
+            localStorage.removeItem(modifiedStorageKey);
+            localStorage.removeItem(deletedStorageKey);
+            window.manatiEditor.logger.debug('💾 Arquivos modificados e excluídos removidos do localStorage');
+        } catch (error) {
+            window.manatiEditor.logger.error('Erro ao limpar localStorage:', error);
+        }
+    }
+
+    /**
+     * Carrega configurações do servidor
+     */
+    async loadConfiguration() {
+        if (this.configLoaded) return;
+        
+        try {
+            const response = await fetch('/api/git/config');
+            if (response.ok) {
+                const config = await response.json();
+                if (config.markdownPath) {
+                    this.markdownPath = config.markdownPath;
+                    window.manatiEditor.logger.debug('🔧 Configuração carregada - markdownPath:', this.markdownPath);
+                }
+                this.configLoaded = true;
+            }
+        } catch (error) {
+            window.manatiEditor.logger.error('❌ Erro ao carregar configuração:', error);
+        }
+    }
+}

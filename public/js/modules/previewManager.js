@@ -35,7 +35,7 @@ export class PreviewManager {
                 this.container.innerHTML = html;
             }
         } catch (error) {
-            console.error('Erro ao atualizar preview:', error);
+            window.logger.error('Erro ao atualizar preview:', error);
             this.container.innerHTML = `
                 <div class="alert alert-danger">
                     <h5>Erro no Preview</h5>

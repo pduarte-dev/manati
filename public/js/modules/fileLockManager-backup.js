@@ -67,14 +67,14 @@ export class FileLockManager {
                 // Atualizar ícones imediatamente
                 this.updateFileTreeIcons();
                 
-                console.log(`Lock adquirido para: ${filePath}`);
+                window.logger.debug(`Lock adquirido para: ${filePath}`);
                 return { success: true };
             } else {
-                console.log(`Lock negado para: ${filePath} - ${data.error}`);
+                window.logger.debug(`Lock negado para: ${filePath} - ${data.error}`);
                 return { success: false, error: data.error, currentLock: data.currentLock };
             }
         } catch (error) {
-            console.error('Erro ao adquirir lock:', error);
+            window.logger.error('Erro ao adquirir lock:', error);
             return { success: false, error: 'Erro de comunicação com o servidor' };
         }
     }
@@ -110,14 +110,14 @@ export class FileLockManager {
                 // Atualizar ícones imediatamente
                 this.updateFileTreeIcons();
                 
-                console.log(`Lock liberado para: ${filePath}`);
+                window.logger.debug(`Lock liberado para: ${filePath}`);
                 return true;
             } else {
-                console.warn(`Erro ao liberar lock: ${data.error}`);
+                window.logger.warn(`Erro ao liberar lock: ${data.error}`);
                 return false;
             }
         } catch (error) {
-            console.error('Erro ao liberar lock:', error);
+            window.logger.error('Erro ao liberar lock:', error);
             return false;
         }
     }
@@ -132,7 +132,7 @@ export class FileLockManager {
             
             return data;
         } catch (error) {
-            console.error('Erro ao verificar lock:', error);
+            window.logger.error('Erro ao verificar lock:', error);
             return { locked: false };
         }
     }
@@ -153,7 +153,7 @@ export class FileLockManager {
             
             return locks;
         } catch (error) {
-            console.error('Erro ao obter locks:', error);
+            window.logger.error('Erro ao obter locks:', error);
             return [];
         }
     }
@@ -201,7 +201,7 @@ export class FileLockManager {
             const data = await response.json();
             
             if (!response.ok || !data.success) {
-                console.warn('Perdeu o lock do arquivo:', filePath);
+                window.logger.warn('Perdeu o lock do arquivo:', filePath);
                 
                 // Verificar o status atual do lock
                 const currentLockInfo = await this.checkLock(filePath);
@@ -218,7 +218,7 @@ export class FileLockManager {
                 }
             }
         } catch (error) {
-            console.error('Erro ao atualizar atividade:', error);
+            window.logger.error('Erro ao atualizar atividade:', error);
             // Em caso de erro de rede, ainda tentar verificar o lock
             try {
                 const currentLockInfo = await this.checkLock(filePath);
@@ -229,7 +229,7 @@ export class FileLockManager {
                     }
                 }
             } catch (secondaryError) {
-                console.error('Erro secundário ao verificar lock:', secondaryError);
+                window.logger.error('Erro secundário ao verificar lock:', secondaryError);
             }
         }
     }
@@ -335,7 +335,7 @@ export class FileLockManager {
      * Manipula quando um lock é perdido
      */
     handleLockLost(filePath, lockInfo) {
-        console.warn(`Lock perdido para: ${filePath}`);
+        window.logger.warn(`Lock perdido para: ${filePath}`);
         
         // Notificar usuário
         if (window.manatiEditor.ui) {

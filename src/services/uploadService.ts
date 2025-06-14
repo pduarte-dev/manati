@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import config from '../config/environment.js';
 import { getMimeTypeDescription, isMimeTypeAllowed } from '../utils/mimeTypes.js';
+import { logger } from '../utils/logger.js';
 
 export class UploadService {
     private uploadsDir: string;
@@ -77,7 +78,7 @@ export class UploadService {
         try {
             await fs.unlink(filePath);
         } catch (error) {
-            console.error('Erro ao deletar arquivo:', error);
+            logger.error('Erro ao deletar arquivo:', error);
             throw new Error('Erro ao deletar arquivo');
         }
     }

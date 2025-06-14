@@ -3,19 +3,24 @@
     <div class="sidebar-header">
         <h6 class="mb-2">Explorador de Arquivos</h6>
         
-        <!-- Botões de ação -->
-        <div class="action-buttons d-flex gap-2">
+        <!-- Botões de ação normais -->
+        <div class="action-buttons d-flex gap-2" id="normalActions">
             <button class="btn btn-outline-secondary btn-sm" id="toggleSearchBtn" title="Buscar arquivos">
                 <i class="bi bi-search"></i>
             </button>
-            <button class="btn btn-outline-primary btn-sm flex-grow-1" id="newFolderBtn">
-                <i class="bi bi-folder-plus"></i> Nova Pasta
+            <button class="btn btn-success btn-sm" id="newFileBtn" title="Novo arquivo">
+                <i class="bi bi-file-plus"></i> Novo
             </button>
-            
-            <!-- Campo de busca que substitui o botão Nova Pasta -->
-            <div class="input-group input-group-sm flex-grow-1" id="searchInputGroup" style="display: none;">
+            <button class="btn btn-outline-primary btn-sm" id="newFolderBtn" title="Nova pasta">
+                <i class="bi bi-folder-plus"></i> Pasta
+            </button>
+        </div>
+        
+        <!-- Campo de busca que substitui os botões quando ativo -->
+        <div class="search-container" id="searchContainer" style="display: none;">
+            <div class="input-group input-group-sm">
                 <input type="text" class="form-control" id="fileSearchInput" placeholder="Buscar arquivos...">
-                <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn">
+                <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" title="Fechar busca">
                     <i class="bi bi-x"></i>
                 </button>
             </div>

@@ -38,9 +38,5 @@ class Logger {
 }
 
 // Criar instância global
-window.logger = new Logger();
-
-// Exportar para compatibilidade com ES6 modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = window.logger;
-}
+const logger = new Logger();
+window.logger = logger;

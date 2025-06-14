@@ -15,7 +15,7 @@ export class EditorManager {
         if (window.visualEditor && typeof window.visualEditor.show === 'function') {
             window.visualEditor.show(markdownContent, window.manatiEditor.currentFile);
         } else {
-            console.warn('Visual editor não disponível ou método show não encontrado');
+            window.logger.warn('Visual editor não disponível ou método show não encontrado');
             // Não tentar inicializar aqui - deve ser feito no app-modular.js
         }
         

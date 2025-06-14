@@ -1,181 +1,281 @@
-# 🦌 Manati - Editor de Markdown
+# Manati - Collaborative Markdown Editor
 
-Editor de markdown moderno e intuitivo com interface visual e modo escuro/claro.
+A modern, web-based collaborative markdown editor with real-time preview, file management, and Git integration.
 
-## 🏗️ Arquitetura Modular
+## Features
 
-- Arquitetura modular com separação de responsabilidades
-- Melhor manutenibilidade e escalabilidade  
-- TypeScript + ES Modules
-- Componentes HTML reutilizáveis
-- **Versão limpa e organizada** (limpeza finalizada em 12/06/2025)
+- **Multi-mode Editing**: Switch between Markdown source, visual WYSIWYG, and live preview modes
+- **Collaborative Editing**: File locking system prevents conflicts when multiple users edit simultaneously
+- **Git Integration**: Automatic version control with commit tracking and change management
+- **File Management**: Complete file and folder operations with drag-and-drop support
+- **Authentication**: GitHub OAuth integration for secure access control
+- **Theme Support**: Light and dark themes for comfortable editing
+- **File Upload**: Support for images and documents with automatic linking
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
-## ✨ Características
+## Technology Stack
 
-- **Editor Visual WYSIWYG** - Edite sem conhecer markdown
-- **Editor de Código** - Para quem prefere markdown puro
-- **Preview em Tempo Real** - Visualize suas alterações instantaneamente
-- **Upload de Arquivos** - Suporte a imagens e anexos
-- **Tema Escuro/Claro** - Interface adaptável
-- **Explorador de Arquivos** - Navegue e organize seus documentos
-- **Layout Responsivo** - Funciona em desktop e mobile
+### Backend
+- **Runtime**: Node.js with Express framework
+- **Language**: TypeScript for type safety and better development experience
+- **Authentication**: Passport.js with GitHub OAuth strategy
+- **File Operations**: Native Node.js filesystem APIs
+- **Git Integration**: Native Git commands via child_process
+- **Session Management**: Express sessions for user state
 
-## 🚀 Instalação
+### Frontend
+- **Architecture**: Modular ES6 JavaScript with dynamic imports
+- **Styling**: Bootstrap 5 for responsive UI components
+- **Icons**: Bootstrap Icons for consistent iconography
+- **Markdown Processing**: Marked.js for markdown parsing and rendering
+- **File Upload**: Multer for handling multipart/form-data
 
-1. Clone o repositório:
+## Installation
+
+### Prerequisites
+- Node.js 16.x or higher
+- npm or yarn package manager
+- Git (for version control features)
+
+### Setup
+
+1. Clone the repository:
 ```bash
-git clone <url-do-repositorio>
+git clone <repository-url>
 cd manati
 ```
 
-2. Instale as dependências:
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Configure as variáveis de ambiente (opcional):
+3. Configure environment variables:
 ```bash
 cp .env.example .env
-# Edite o arquivo .env conforme necessário
 ```
 
-4. Execute em modo desenvolvimento:
-```bash
-npm run dev
-```
-
-5. Acesse: http://localhost:3000
-
-## 📁 Configuração
-
-### Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto:
+Edit the `.env` file with your configuration:
 
 ```env
-# Porta do servidor (padrão: 3000)
+# Server configuration
 PORT=3000
+NODE_ENV=development
 
-# Diretório raiz para arquivos markdown (padrão: ./markdown-files)
+# Directory paths (customize for your project)
 MARKDOWN_ROOT_DIR=./markdown-files
-
-# Diretório para uploads de arquivos e imagens (padrão: ./uploads)
 UPLOADS_DIR=./uploads
+
+# Logging
+LOG_DEBUG=true
+
+# Authentication (optional)
+AUTH_ENABLED=true
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+ALLOWED_EMAIL_DOMAIN=@yourdomain.com
+SESSION_SECRET=your-secure-session-secret
+
+# Git integration (optional)
+GIT_TARGET_BRANCH=main
+GIT_REMOTE_URL=https://github.com/username/repository.git
 ```
 
-## 🛠️ Scripts
+4. Build the application:
+```bash
+npm run build
+```
 
-### Versão Modular (Recomendada)
-- `npm run dev:modular` - Executa versão modular em desenvolvimento
-- `npm run build:modular` - Compila a versão modular
-- `npm run start:modular` - Executa versão modular em produção
+5. Start the server:
+```bash
+npm start
+```
 
-### Versão Monolítica (Legacy)
-- `npm run dev` - Executa em modo desenvolvimento
-- `npm run build` - Compila o projeto
-- `npm start` - Executa em modo produção
+6. Access the application at `http://localhost:3000`
 
-## 📂 Estrutura do Projeto
+## Configuration
 
-### Versão Modular
+### Directory Structure
+
+Manati uses configurable directories for content and uploads:
+
+- **MARKDOWN_ROOT_DIR**: Where your markdown files are stored
+- **UPLOADS_DIR**: Where uploaded files (images, documents) are saved
+
+These can be absolute or relative paths, allowing integration with existing projects like Docusaurus, GitBook, or static site generators.
+
+### GitHub OAuth Setup
+
+For authentication features:
+
+1. Go to GitHub Settings > Developer settings > OAuth Apps
+2. Create a new OAuth App
+3. Set the authorization callback URL to: `http://localhost:3000/auth/github/callback`
+4. Add the Client ID and Secret to your `.env` file
+
+### Git Integration
+
+The editor automatically detects Git repositories and provides:
+- Automatic staging of modified files
+- Commit creation with user attribution
+- Change tracking per user session
+- Support for custom target branches
+
+## Usage
+
+### Basic Operations
+
+- **Create Files**: Click "New File" in the toolbar or right-click in the file explorer
+- **Create Folders**: Click "New Folder" or use the right-click context menu
+- **Edit Files**: Double-click any markdown file to open in the editor
+- **Switch Modes**: Use the tabs (Markdown, Visual, Preview) to change editing modes
+- **Save Changes**: Ctrl+S or click the "Save" button
+- **Upload Files**: Drag and drop or use the upload buttons in the toolbar
+
+### Collaborative Features
+
+- **File Locking**: Files are automatically locked when opened by a user
+- **Real-time Status**: See which files are being edited by others
+- **Git Integration**: Track changes and publish commits when ready
+
+### Keyboard Shortcuts
+
+- `Ctrl+S` - Save current file
+- `Ctrl+N` - Create new file
+- `Ctrl+Shift+N` - Create new folder
+- `Ctrl+B` - Bold text (visual editor)
+- `Ctrl+I` - Italic text (visual editor)
+- `Ctrl+U` - Underline text (visual editor)
+
+## API Reference
+
+### File Operations
+
+- `GET /api/files` - List files and directories
+- `GET /api/file/:path` - Read file content
+- `POST /api/file/:path` - Save file content
+- `DELETE /api/file/:path` - Delete file
+- `POST /api/folder` - Create directory
+- `PUT /api/rename` - Rename file or folder
+
+### Upload Operations
+
+- `POST /api/upload` - Upload single file
+- `POST /api/upload-multiple` - Upload multiple files
+
+### Git Operations
+
+- `GET /api/git/status` - Get repository status
+- `GET /api/git/config` - Get Git configuration
+- `POST /api/git/commit` - Create commit with changes
+
+### Authentication
+
+- `GET /auth/github` - Initiate GitHub OAuth
+- `GET /auth/github/callback` - OAuth callback
+- `POST /auth/logout` - Logout user
+- `GET /auth/user` - Get current user info
+
+## Development
+
+### Project Structure
+
 ```
 manati/
-├── src/                    # Backend TypeScript modular
-│   ├── config/            # Configurações
-│   ├── services/          # Serviços de negócio
-│   ├── routes/            # Rotas da API
-│   ├── utils/             # Utilitários
-│   ├── app.ts             # Configuração Express
-│   └── index-modular.ts   # Ponto de entrada modular
-├── public/                # Frontend
-│   ├── components/        # Componentes HTML
-│   ├── js/modules/        # Módulos JavaScript
-│   ├── index-modular.html # HTML modular
-│   └── css/               # Estilos
-├── markdown-files/        # Arquivos markdown
-└── uploads/               # Arquivos enviados
+├── src/                    # TypeScript backend source
+│   ├── config/            # Configuration management
+│   ├── routes/            # Express route handlers
+│   ├── services/          # Business logic services
+│   ├── utils/             # Utility functions
+│   └── types/             # TypeScript type definitions
+├── public/                # Frontend static files
+│   ├── js/modules/        # Modular JavaScript components
+│   ├── css/               # Stylesheets
+│   ├── components/        # HTML components
+│   └── assets/            # Images and static assets
+├── dist/                  # Compiled TypeScript output
+└── docs/                  # Documentation files
 ```
 
-### Versão Monolítica (Legacy)
+### Development Scripts
+
+- `npm run dev` - Start development server with auto-restart
+- `npm run build` - Compile TypeScript to JavaScript
+- `npm run start` - Start production server
+- `npm run test` - Run test suite (if available)
+
+### Adding New Features
+
+1. **Backend**: Add routes in `src/routes/`, implement logic in `src/services/`
+2. **Frontend**: Create modules in `public/js/modules/`, add UI in `public/components/`
+3. **Styling**: Extend styles in `public/css/` following Bootstrap conventions
+
+## Integration with Static Site Generators
+
+### Docusaurus
+
+```env
+MARKDOWN_ROOT_DIR=./docusaurus/docs
+UPLOADS_DIR=./docusaurus/static/img
 ```
-manati/
-├── src/                    # Código TypeScript do servidor
-│   └── index.ts           # Servidor Express monolítico
-├── public/                # Arquivos estáticos
-│   ├── js/                # JavaScript do cliente
-│   ├── css/               # Estilos CSS
-│   └── index.html         # Interface principal
-├── public/                # Arquivos estáticos
-│   ├── assets/           # Imagens e logos
-│   ├── css/              # Estilos CSS
-│   ├── js/               # Scripts JavaScript
-│   └── index.html        # Página principal
-├── markdown-files/        # Arquivos markdown (criado automaticamente)
-├── uploads/              # Arquivos enviados (criado automaticamente)
-├── dist/                 # Código compilado (criado automaticamente)
-└── ...
+
+### GitBook
+
+```env
+MARKDOWN_ROOT_DIR=./gitbook
+UPLOADS_DIR=./gitbook/.gitbook/assets
 ```
 
-## 🎯 Como Usar
+### Jekyll
 
-1. **Criar Novo Arquivo**: Clique em "Novo" na barra superior
-2. **Explorar Arquivos**: Use a sidebar esquerda para navegar
-3. **Edição Visual**: Use a aba "Visual" para edição WYSIWYG
-4. **Edição Markdown**: Use a aba "Markdown" para código puro
-5. **Preview**: Use a aba "Preview" para visualizar o resultado
-6. **Upload**: Use os botões da toolbar para inserir imagens e arquivos
-7. **Salvar**: Ctrl+S ou botão "Salvar" na barra superior
+```env
+MARKDOWN_ROOT_DIR=./_posts
+UPLOADS_DIR=./assets/images
+```
 
-## 🌐 API Endpoints
+## Security Considerations
 
-- `GET /api/files` - Lista arquivos e pastas
-- `GET /api/file/:path` - Lê conteúdo de um arquivo
-- `POST /api/file/:path` - Salva conteúdo de um arquivo
-- `DELETE /api/file/:path` - Remove um arquivo
-- `POST /api/folder` - Cria uma nova pasta
-- `POST /api/upload` - Upload de arquivo único
-- `POST /api/upload-multiple` - Upload de múltiplos arquivos
-- `POST /api/preview` - Converte markdown para HTML
+- Always use HTTPS in production
+- Configure proper session secrets
+- Restrict file access to authorized users
+- Validate file uploads and paths
+- Use environment variables for sensitive configuration
+- Enable authentication for production deployments
 
-## 🎨 Temas
+## Contributing
 
-O editor suporta temas claro e escuro:
+We welcome contributions! Please follow these guidelines:
 
-- **Tema Claro**: Interface padrão clara
-- **Tema Escuro**: Interface escura para trabalho noturno
+1. **Fork the repository** and create a feature branch
+2. **Write tests** for new functionality when applicable
+3. **Follow code style** conventions used in the project
+4. **Update documentation** for any API or configuration changes
+5. **Submit a pull request** with a clear description of changes
 
-Altere clicando no ícone do sol/lua na barra superior.
+### Development Setup
 
-## 📝 Atalhos de Teclado
+1. Fork and clone the repository
+2. Install dependencies: `npm install`
+3. Create a feature branch: `git checkout -b feature/amazing-feature`
+4. Make your changes and test thoroughly
+5. Commit your changes: `git commit -m 'Add amazing feature'`
+6. Push to the branch: `git push origin feature/amazing-feature`
+7. Open a Pull Request
 
-- `Ctrl+S` - Salvar arquivo
-- `Ctrl+B` - Negrito (editor visual)
-- `Ctrl+I` - Itálico (editor visual)
-- `Ctrl+U` - Sublinhado (editor visual)
+## License
 
-## 🔧 Desenvolvimento
+This project is licensed under the ISC License. See the [LICENSE](LICENSE) file for details.
 
-### Tecnologias Utilizadas
+## Support
 
-- **Backend**: Node.js, Express, TypeScript
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Styling**: Bootstrap 5
-- **Icons**: Bootstrap Icons
-- **File Upload**: Multer
-- **Markdown**: Marked.js
+- **Documentation**: Check the `/docs` folder for detailed guides
+- **Issues**: Report bugs or request features via GitHub Issues
+- **Discussions**: Join community discussions for questions and ideas
 
-### Contribuindo
+## Changelog
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
 
-## 📄 Licença
+---
 
-Este projeto está sob a licença ISC.
-
-## 🦌 Sobre o Nome
-
-"Manati" é uma referência ao peixe-boi (manatee em inglês), um animal pacífico e amigável, assim como este editor pretende ser: simples, intuitivo e acessível para todos.
+**Manati** - Making markdown editing collaborative and enjoyable.
