@@ -17,5 +17,6 @@ Fora que existem mais opções que podem ser criadas para o editor visual.Seria 
 Como pode ver na imagem o documento no github não exibiu a imagem e a formatação está estranha parece que não está respeitando a quebra de linhas. será necessário ajustar? Ou o problema e o github? Será necesario testar no Docusaurus também.
 Agora vou excluir a pasta e a pasta com arquivo dentro para ver o que vai acontecer. Pastas vazias não são enviadas para o git então a exclusão é só local isso e um bom comportamento, e a pasta com arquivo gerou uma nova publicação no git isso e bom também. Verificado e a pasta e o arquivo foram excluídos do git.
 
-Finalizando essa anotação fora o ajustes visuais do próprio editor, vai ser necessário um ajuste fino no publicar e implementar mais funcionalidades no visual. Seria interessante também limitar a largura das linha do tamanho máximo de uma folha **A4**.
-Alteração para testar commit com stage.
+Finalizando essa anotação fora o ajustes visuais do próprio editor, vai ser necessário um ajuste fino no publicar e implementar mais funcionalidades no visual. Seria interessante também limitar a largura das linha do tamanho máximo de uma folha **A4**. 
+
+Olá
