@@ -113,19 +113,115 @@ class ManatiEditor {
     }
 
     // Métodos para modais e criação de arquivos/pastas
+    
+    /**
+     * Valida se o nome está em snake_case
+     */
+    validateSnakeCase(name) {
+        // Padrão snake_case: apenas letras minúsculas, números e underscore
+        // Não pode começar com número ou underscore
+        // Não pode ter underscores consecutivos
+        const snakeCasePattern = /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/;
+        return snakeCasePattern.test(name);
+    }
+
+    /**
+     * Converte texto para snake_case
+     */
+    toSnakeCase(text) {
+        return text
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '_')  // Substitui caracteres especiais por underscore
+            .replace(/^_+|_+$/g, '')      // Remove underscores do início e fim
+            .replace(/_+/g, '_');         // Remove underscores consecutivos
+    }
+
     showNewFileModal() {
-        document.getElementById('newFileName').value = '';
+        const input = document.getElementById('newFileName');
+        const validation = document.getElementById('fileNameValidation');
+        const createBtn = document.getElementById('createFileBtn');
+        
+        input.value = '';
+        input.classList.remove('is-invalid');
+        validation.style.display = 'none';
+        createBtn.disabled = false;
+        
+        // Adicionar validação em tempo real
+        input.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            
+            if (value === '') {
+                input.classList.remove('is-invalid');
+                validation.style.display = 'none';
+                createBtn.disabled = false;
+                return;
+            }
+            
+            if (!this.validateSnakeCase(value)) {
+                input.classList.add('is-invalid');
+                validation.style.display = 'block';
+                validation.innerHTML = `Nome deve estar em snake_case.<br>Sugestão: <strong>${this.toSnakeCase(value)}</strong>`;
+                createBtn.disabled = true;
+            } else {
+                input.classList.remove('is-invalid');
+                validation.style.display = 'none';
+                createBtn.disabled = false;
+            }
+        });
+        
         this.ui.showModal('newFileModal');
     }
 
     showNewFolderModal() {
-        document.getElementById('newFolderName').value = '';
+        const input = document.getElementById('newFolderName');
+        const validation = document.getElementById('folderNameValidation');
+        const createBtn = document.getElementById('createFolderBtn');
+        
+        input.value = '';
+        input.classList.remove('is-invalid');
+        validation.style.display = 'none';
+        createBtn.disabled = false;
+        
+        // Adicionar validação em tempo real
+        input.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            
+            if (value === '') {
+                input.classList.remove('is-invalid');
+                validation.style.display = 'none';
+                createBtn.disabled = false;
+                return;
+            }
+            
+            if (!this.validateSnakeCase(value)) {
+                input.classList.add('is-invalid');
+                validation.style.display = 'block';
+                validation.innerHTML = `Nome deve estar em snake_case.<br>Sugestão: <strong>${this.toSnakeCase(value)}</strong>`;
+                createBtn.disabled = true;
+            } else {
+                input.classList.remove('is-invalid');
+                validation.style.display = 'none';
+                createBtn.disabled = false;
+            }
+        });
+        
         this.ui.showModal('newFolderModal');
     }
 
     createNewFile() {
         const fileName = document.getElementById('newFileName').value.trim();
-        if (!fileName) return;
+        if (!fileName) {
+            this.ui.showToast('Nome do arquivo é obrigatório', 'error');
+            return;
+        }
+
+        // Validar snake_case
+        if (!this.validateSnakeCase(fileName)) {
+            const suggestion = this.toSnakeCase(fileName);
+            this.ui.showToast(`Nome deve estar em snake_case. Sugestão: "${suggestion}"`, 'error');
+            document.getElementById('newFileName').value = suggestion;
+            return;
+        }
 
         this.fileManager.createNewFile(fileName);
         this.ui.hideModal('newFileModal');
@@ -138,7 +234,18 @@ class ManatiEditor {
 
     createNewFolder() {
         const folderName = document.getElementById('newFolderName').value.trim();
-        if (!folderName) return;
+        if (!folderName) {
+            this.ui.showToast('Nome da pasta é obrigatório', 'error');
+            return;
+        }
+
+        // Validar snake_case
+        if (!this.validateSnakeCase(folderName)) {
+            const suggestion = this.toSnakeCase(folderName);
+            this.ui.showToast(`Nome deve estar em snake_case. Sugestão: "${suggestion}"`, 'error');
+            document.getElementById('newFolderName').value = suggestion;
+            return;
+        }
 
         this.fileManager.createNewFolder(folderName);
         this.ui.hideModal('newFolderModal');

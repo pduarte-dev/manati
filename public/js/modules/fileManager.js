@@ -502,19 +502,33 @@ export class FileManager {
         try {
             // Extrair nome sem extensão para o input
             const nameWithoutExt = currentName.replace(/\.md$/, '');
+            
+            // Criar validador snake_case
+            const snakeCaseValidator = (value) => {
+                if (!value.trim()) {
+                    return { isValid: false, message: 'Nome não pode estar vazio' };
+                }
+                
+                if (!window.manatiEditor.validateSnakeCase(value)) {
+                    const suggestion = window.manatiEditor.toSnakeCase(value);
+                    return { 
+                        isValid: false, 
+                        message: `Nome deve estar em snake_case.<br>Sugestão: <strong>${suggestion}</strong>` 
+                    };
+                }
+                
+                return { isValid: true };
+            };
+            
             const newName = await window.manatiEditor.ui.showInput(
                 'Renomear Arquivo',
                 'Novo nome do arquivo:',
                 nameWithoutExt,
-                'Digite o novo nome...'
+                'Digite o novo nome...',
+                snakeCaseValidator
             );
             
             if (!newName || newName === nameWithoutExt) {
-                return;
-            }
-
-            if (!newName.trim()) {
-                window.manatiEditor.ui.showToast('Nome do arquivo não pode estar vazio', 'error');
                 return;
             }
 
@@ -565,19 +579,32 @@ export class FileManager {
         });
         
         try {
+            // Criar validador snake_case
+            const snakeCaseValidator = (value) => {
+                if (!value.trim()) {
+                    return { isValid: false, message: 'Nome não pode estar vazio' };
+                }
+                
+                if (!window.manatiEditor.validateSnakeCase(value)) {
+                    const suggestion = window.manatiEditor.toSnakeCase(value);
+                    return { 
+                        isValid: false, 
+                        message: `Nome deve estar em snake_case.<br>Sugestão: <strong>${suggestion}</strong>` 
+                    };
+                }
+                
+                return { isValid: true };
+            };
+            
             const newName = await window.manatiEditor.ui.showInput(
                 'Renomear Pasta',
-                'Novo nome da pasta:',
+                'Novo nome da pasta (snake_case):',
                 currentName,
-                'Digite o novo nome...'
+                'Digite o novo nome...',
+                snakeCaseValidator
             );
             
             if (!newName || newName === currentName) {
-                return;
-            }
-
-            if (!newName.trim()) {
-                window.manatiEditor.ui.showToast('Nome da pasta não pode estar vazio', 'error');
                 return;
             }
 
@@ -904,20 +931,15 @@ export class FileManager {
     initializeSearch() {
         const searchInput = document.getElementById('fileSearchInput');
         const clearBtn = document.getElementById('clearSearchBtn');
-        const toggleBtn = document.getElementById('toggleSearchBtn');
         
-        if (!searchInput || !clearBtn || !toggleBtn) return;
+        if (!searchInput || !clearBtn) return;
         
         let searchTimeout;
         
-        // Event listener para o botão de toggle da busca
-        toggleBtn.addEventListener('click', () => {
-            window.manatiEditor.ui.toggleSearch(true);
-        });
-        
-        // Event listener para o botão de fechar busca
+        // Event listener para o botão de limpar busca
         clearBtn.addEventListener('click', () => {
-            window.manatiEditor.ui.toggleSearch(false);
+            searchInput.value = '';
+            this.clearSearch();
         });
         
         // Event listener para busca em tempo real
@@ -933,7 +955,8 @@ export class FileManager {
         // Fechar busca com ESC
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                window.manatiEditor.ui.toggleSearch(false);
+                searchInput.value = '';
+                this.clearSearch();
             }
         });
     }

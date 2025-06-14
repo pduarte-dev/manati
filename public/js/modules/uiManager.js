@@ -172,7 +172,7 @@ export class UIManager {
         });
     }
 
-    showInput(title, label, defaultValue = '', placeholder = '') {
+    showInput(title, label, defaultValue = '', placeholder = '', validator = null) {
         return new Promise((resolve) => {
             // Configurar modal
             document.getElementById('inputModalTitle').textContent = title;
@@ -182,23 +182,76 @@ export class UIManager {
             inputField.value = defaultValue;
             inputField.placeholder = placeholder;
             
+            // Limpar classes de validação
+            inputField.classList.remove('is-invalid');
+            const validationDiv = document.getElementById('inputModalValidation');
+            if (validationDiv) {
+                validationDiv.style.display = 'none';
+                validationDiv.innerHTML = '';
+            }
+            
             const confirmBtn = document.getElementById('inputModalConfirm');
             
             // Limpar eventos anteriores
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
             
-            // Adicionar evento de confirmação
-            newConfirmBtn.addEventListener('click', () => {
+            // Função de validação em tempo real
+            let currentValue = defaultValue;
+            const validateInput = () => {
                 const value = inputField.value.trim();
+                currentValue = value;
+                const validationDiv = document.getElementById('inputModalValidation');
+                
+                if (validator && value) {
+                    const validation = validator(value);
+                    if (!validation.isValid) {
+                        inputField.classList.add('is-invalid');
+                        if (validationDiv) {
+                            validationDiv.innerHTML = validation.message;
+                            validationDiv.style.display = 'block';
+                            validationDiv.style.color = '#dc3545'; // Cor vermelha
+                        }
+                        newConfirmBtn.disabled = true;
+                        return false;
+                    }
+                }
+                
+                inputField.classList.remove('is-invalid');
+                if (validationDiv) {
+                    validationDiv.style.display = 'none';
+                    validationDiv.innerHTML = '';
+                }
+                newConfirmBtn.disabled = false;
+                return true;
+            };
+            
+            // Adicionar validação em tempo real se validator fornecido
+            if (validator) {
+                inputField.addEventListener('input', validateInput);
+                // Validar valor inicial
+                setTimeout(validateInput, 100);
+            }
+            
+            // Adicionar evento de confirmação
+            const handleConfirm = () => {
+                const value = inputField.value.trim();
+                if (validator && !validator(value).isValid) {
+                    return; // Não confirmar se inválido
+                }
                 this.hideModal('inputModal');
                 resolve(value || null);
-            });
+            };
+            
+            newConfirmBtn.addEventListener('click', handleConfirm);
             
             // Adicionar evento de Enter no input
             const handleEnter = (e) => {
                 if (e.key === 'Enter') {
                     const value = inputField.value.trim();
+                    if (validator && !validator(value).isValid) {
+                        return; // Não confirmar se inválido
+                    }
                     this.hideModal('inputModal');
                     resolve(value || null);
                 }
@@ -211,6 +264,9 @@ export class UIManager {
             const handleCancel = () => {
                 resolve(null);
                 inputField.removeEventListener('keydown', handleEnter);
+                if (validator) {
+                    inputField.removeEventListener('input', validateInput);
+                }
                 modal.removeEventListener('hidden.bs.modal', handleCancel);
             };
             

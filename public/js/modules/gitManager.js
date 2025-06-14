@@ -190,18 +190,27 @@ export class GitManager {
             window.logger.debug('🔧 Corrigindo caminho de:', filePath, 'para:', fullPath);
         }
         
-        // Remover da lista de modificados se estiver lá
-        this.modifiedFiles.delete(fullPath);
+        // Verificar se o arquivo estava na lista de modificados (nunca foi commitado)
+        const wasModified = this.modifiedFiles.has(fullPath) || this.modifiedFiles.has(filePath);
         
-        // Adicionar à lista de excluídos
-        this.deletedFiles.add(fullPath);
+        if (wasModified) {
+            // Se estava apenas modificado (nunca commitado), apenas remove da lista de modificados
+            // Não adiciona à lista de excluídos pois o arquivo não existe no Git
+            this.modifiedFiles.delete(fullPath);
+            this.modifiedFiles.delete(filePath);
+            window.logger.debug('🔄 Arquivo removido da lista de modificados (nunca foi commitado):', fullPath);
+        } else {
+            // Arquivo existe no Git, marcar como excluído
+            this.deletedFiles.add(fullPath);
+            window.logger.debug('🗑️ Arquivo marcado como excluído:', fullPath);
+        }
+        
         this.updateFileIcons();
         this.updateGitButton();
         
         // 💾 Salvar no localStorage para persistir entre sessões
         this.saveModifiedFilesToStorage();
         
-        window.logger.debug(`🗑️ Arquivo marcado como excluído: ${fullPath}`);
         window.logger.debug(`📝 Total de arquivos modificados: ${this.modifiedFiles.size}`);
         window.logger.debug(`🗑️ Total de arquivos excluídos: ${this.deletedFiles.size}`);
     }

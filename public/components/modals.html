@@ -5,17 +5,18 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Novo Arquivo Markdown</h5>
+                <h5 class="modal-title">Novo Arquivo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="newFileName" class="form-label">Nome do arquivo:</label>
-                    <input type="text" class="form-control" id="newFileName" placeholder="meu-documento">
+                    <input type="text" class="form-control" id="newFileName" placeholder="meu_documento">
                     <div class="form-text">
                         <i class="bi bi-info-circle"></i> 
-                        A extensão .md será adicionada automaticamente
+                        A extensão .md será adicionada automaticamente.
                     </div>
+                    <div id="fileNameValidation" class="invalid-feedback" style="display: none;"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -37,7 +38,9 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="newFolderName" class="form-label">Nome da pasta:</label>
-                    <input type="text" class="form-control" id="newFolderName" placeholder="minha-pasta">
+                    <input type="text" class="form-control" id="newFolderName" placeholder="minha_pasta">
+
+                    <div id="folderNameValidation" class="invalid-feedback" style="display: none;"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -170,6 +173,7 @@
                 <div class="mb-3">
                     <label for="inputModalField" class="form-label" id="inputModalLabel">Valor:</label>
                     <input type="text" class="form-control" id="inputModalField" placeholder="">
+                    <div id="inputModalValidation" class="invalid-feedback" style="display: none;"></div>
                 </div>
             </div>
             <div class="modal-footer">
