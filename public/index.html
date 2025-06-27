@@ -52,6 +52,7 @@
                             <!-- Barra de Ferramentas Visual -->
                             <div class="visual-toolbar" id="visualToolbar" style="display: none;">
                                 <div class="btn-toolbar" role="toolbar">
+                                    <!-- Formatação de Texto -->
                                     <div class="btn-group btn-group-sm me-2" role="group">
                                         <button type="button" class="btn btn-outline-secondary" data-command="bold" title="Negrito (Ctrl+B)">
                                             <i class="bi bi-type-bold"></i>
@@ -62,14 +63,23 @@
                                         <button type="button" class="btn btn-outline-secondary" data-command="underline" title="Sublinhado (Ctrl+U)">
                                             <i class="bi bi-type-underline"></i>
                                         </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="strikethrough" title="Tachado">
+                                            <i class="bi bi-type-strikethrough"></i>
+                                        </button>
                                     </div>
                                     
+                                    <!-- Títulos -->
                                     <div class="btn-group btn-group-sm me-2" role="group">
                                         <button type="button" class="btn btn-outline-secondary" data-command="h1" title="Título 1">H1</button>
                                         <button type="button" class="btn btn-outline-secondary" data-command="h2" title="Título 2">H2</button>
                                         <button type="button" class="btn btn-outline-secondary" data-command="h3" title="Título 3">H3</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="h4" title="Título 4">H4</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="h5" title="Título 5">H5</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="h6" title="Título 6">H6</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="p" title="Parágrafo">P</button>
                                     </div>
                                     
+                                    <!-- Listas e Citações -->
                                     <div class="btn-group btn-group-sm me-2" role="group">
                                         <button type="button" class="btn btn-outline-secondary" data-command="insertUnorderedList" title="Lista">
                                             <i class="bi bi-list-ul"></i>
@@ -80,8 +90,22 @@
                                         <button type="button" class="btn btn-outline-secondary" data-command="blockquote" title="Citação">
                                             <i class="bi bi-quote"></i>
                                         </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="todo" title="Lista de Tarefas">
+                                            <i class="bi bi-check2-square"></i>
+                                        </button>
                                     </div>
                                     
+                                    <!-- Código -->
+                                    <div class="btn-group btn-group-sm me-2" role="group">
+                                        <button type="button" class="btn btn-outline-secondary" data-command="code" title="Código Inline">
+                                            <i class="bi bi-code"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="codeblock" title="Bloco de Código">
+                                            <i class="bi bi-code-square"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Mídia e Links -->
                                     <div class="btn-group btn-group-sm me-2" role="group">
                                         <button type="button" class="btn btn-outline-primary" id="insertImageBtn" title="Inserir Imagem">
                                             <i class="bi bi-image"></i>
@@ -92,17 +116,47 @@
                                         <button type="button" class="btn btn-outline-primary" id="insertFileBtn" title="Anexar Arquivo">
                                             <i class="bi bi-paperclip"></i>
                                         </button>
-                                    </div>
-                                    
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-outline-secondary" data-command="code" title="Código Inline">
-                                            <i class="bi bi-code"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="codeblock" title="Bloco de Código">
-                                            <i class="bi bi-code-square"></i>
-                                        </button>
                                         <button type="button" class="btn btn-outline-secondary" data-command="table" title="Tabela">
                                             <i class="bi bi-table"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Formatação Avançada -->
+                                    <div class="btn-group btn-group-sm me-2" role="group">
+                                        <button type="button" class="btn btn-outline-secondary" data-command="hr" title="Linha Horizontal">
+                                            <i class="bi bi-hr"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="pageBreak" title="Quebra de Página">
+                                            <i class="bi bi-file-break"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="superscript" title="Sobrescrito">
+                                            <i class="bi bi-superscript"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="subscript" title="Subscrito">
+                                            <i class="bi bi-subscript"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Alinhamento -->
+                                    <div class="btn-group btn-group-sm me-2" role="group">
+                                        <button type="button" class="btn btn-outline-secondary" data-command="justifyLeft" title="Alinhar à Esquerda">
+                                            <i class="bi bi-text-left"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="justifyCenter" title="Centralizar">
+                                            <i class="bi bi-text-center"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-command="justifyRight" title="Alinhar à Direita">
+                                            <i class="bi bi-text-right"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Ações -->
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-warning" data-command="undo" title="Desfazer (Ctrl+Z)">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning" data-command="redo" title="Refazer (Ctrl+Y)">
+                                            <i class="bi bi-arrow-clockwise"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -227,14 +281,24 @@
                 // 2. Aguardar um pouco para garantir que o DOM está atualizado
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // 3. Carregar visual-editor.js
-                logger.debug('🎨 Carregando visual editor...');
-                await loadScript('js/visual-editor.js');
+                // 3. Carregar módulos do visual editor
+                logger.debug('🎨 Carregando módulos do visual editor...');
+                await Promise.all([
+                    loadScript('js/modules/visualEditor/converter.js'),
+                    loadScript('js/modules/visualEditor/commands.js'),
+                    loadScript('js/modules/visualEditor/events.js'),
+                    loadScript('js/modules/visualEditor/toolbar.js'),
+                    loadScript('js/modules/visualEditor/customization.js')
+                ]);
                 
-                // 4. Aguardar um pouco mais
+                // 4. Carregar core e index do visual editor
+                await loadScript('js/modules/visualEditor/core.js');
+                await loadScript('js/modules/visualEditor/index.js');
+                
+                // 5. Aguardar um pouco mais
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // 5. Carregar e inicializar o app modular
+                // 6. Carregar e inicializar o app modular
                 logger.debug('🔧 Inicializando aplicação modular...');
                 const appModule = await import('./js/app-modular.js');
                 
