@@ -52,7 +52,7 @@
                             <!-- Barra de Ferramentas Visual -->
                             <div class="visual-toolbar" id="visualToolbar" style="display: none;">
                                 <div class="btn-toolbar" role="toolbar">
-                                    <!-- Formatação de Texto -->
+                                    <!-- Formatação de Texto (Markdown) -->
                                     <div class="btn-group btn-group-sm me-2" role="group">
                                         <button type="button" class="btn btn-outline-secondary" data-command="bold" title="Negrito (Ctrl+B)">
                                             <i class="bi bi-type-bold"></i>
@@ -70,13 +70,21 @@
                                     
                                     <!-- Títulos -->
                                     <div class="btn-group btn-group-sm me-2" role="group">
-                                        <button type="button" class="btn btn-outline-secondary" data-command="h1" title="Título 1">H1</button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="h2" title="Título 2">H2</button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="h3" title="Título 3">H3</button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="h4" title="Título 4">H4</button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="h5" title="Título 5">H5</button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="h6" title="Título 6">H6</button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="p" title="Parágrafo">P</button>
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="headingDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Formato do texto">
+                                                <i class="bi bi-type"></i> Parágrafo
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="headingDropdown">
+                                                <li><a class="dropdown-item" href="#" data-command="p">Parágrafo</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="#" data-command="h1">Título 1</a></li>
+                                                <li><a class="dropdown-item" href="#" data-command="h2">Título 2</a></li>
+                                                <li><a class="dropdown-item" href="#" data-command="h3">Título 3</a></li>
+                                                <li><a class="dropdown-item" href="#" data-command="h4">Título 4</a></li>
+                                                <li><a class="dropdown-item" href="#" data-command="h5">Título 5</a></li>
+                                                <li><a class="dropdown-item" href="#" data-command="h6">Título 6</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                     
                                     <!-- Listas e Citações -->
@@ -121,32 +129,10 @@
                                         </button>
                                     </div>
                                     
-                                    <!-- Formatação Avançada -->
+                                    <!-- Formatação Avançada (Markdown) -->
                                     <div class="btn-group btn-group-sm me-2" role="group">
                                         <button type="button" class="btn btn-outline-secondary" data-command="hr" title="Linha Horizontal">
                                             <i class="bi bi-hr"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="pageBreak" title="Quebra de Página">
-                                            <i class="bi bi-file-break"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="superscript" title="Sobrescrito">
-                                            <i class="bi bi-superscript"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="subscript" title="Subscrito">
-                                            <i class="bi bi-subscript"></i>
-                                        </button>
-                                    </div>
-                                    
-                                    <!-- Alinhamento -->
-                                    <div class="btn-group btn-group-sm me-2" role="group">
-                                        <button type="button" class="btn btn-outline-secondary" data-command="justifyLeft" title="Alinhar à Esquerda">
-                                            <i class="bi bi-text-left"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="justifyCenter" title="Centralizar">
-                                            <i class="bi bi-text-center"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-command="justifyRight" title="Alinhar à Direita">
-                                            <i class="bi bi-text-right"></i>
                                         </button>
                                     </div>
                                     
@@ -281,24 +267,14 @@
                 // 2. Aguardar um pouco para garantir que o DOM está atualizado
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // 3. Carregar módulos do visual editor
-                logger.debug('🎨 Carregando módulos do visual editor...');
-                await Promise.all([
-                    loadScript('js/modules/visualEditor/converter.js'),
-                    loadScript('js/modules/visualEditor/commands.js'),
-                    loadScript('js/modules/visualEditor/events.js'),
-                    loadScript('js/modules/visualEditor/toolbar.js'),
-                    loadScript('js/modules/visualEditor/customization.js')
-                ]);
+                // 3. Carregar o novo visual editor modular
+                logger.debug('🎨 Carregando editor visual WYSIWYG...');
+                await import('./js/visual-editor.js');
                 
-                // 4. Carregar core e index do visual editor
-                await loadScript('js/modules/visualEditor/core.js');
-                await loadScript('js/modules/visualEditor/index.js');
-                
-                // 5. Aguardar um pouco mais
+                // 4. Aguardar um pouco mais
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // 6. Carregar e inicializar o app modular
+                // 5. Carregar e inicializar o app modular
                 logger.debug('🔧 Inicializando aplicação modular...');
                 const appModule = await import('./js/app-modular.js');
                 

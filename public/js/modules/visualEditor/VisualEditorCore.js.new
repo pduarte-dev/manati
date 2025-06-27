@@ -1,0 +1,406 @@
+/**
+ * VisualEditorCore - Classe principal do editor WYSIWYG para Markdown
+ * Renderiza formatação ao vivo sem mostrar sintaxe Markdown crua
+ */
+class VisualEditorCore {
+    constructor() {
+        this.editor = document.getElementById('visualEditor');
+        this.toolbarElement = document.getElementById('visualToolbar');
+        this.placeholder = document.getElementById('visualEditorPlaceholder');
+        this.fileInfo = document.getElementById('visualFileInfo');
+        this.fileName = document.getElementById('visualCurrentFileName');
+        this.isActive = false;
+        
+        // Módulos especializados
+        this.formatter = null;
+        this.converter = null;
+        this.toolbarManager = null;
+        this.uploader = null;
+        this.history = null;
+        
+        // Estado interno
+        this.currentMarkdown = '';
+        
+        this.init();
+    }
+
+    async init() {
+        try {
+            // Aguardar carregamento dos módulos
+            await this.loadModules();
+            
+            // Configurar editor como contentEditable
+            this.setupEditor();
+            
+            // Configurar eventos básicos
+            this.bindCoreEvents();
+            
+            console.log('Visual Editor Core inicializado com sucesso');
+        } catch (error) {
+            console.error('Erro ao inicializar Visual Editor Core:', error);
+        }
+    }
+
+    async loadModules() {
+        // Carregar módulos especializados
+        const [
+            { MarkdownFormatter },
+            { MarkdownConverter }, 
+            { EditorToolbar },
+            { FileUploader },
+            { EditorHistory }
+        ] = await Promise.all([
+            import('./MarkdownFormatter.js'),
+            import('./MarkdownConverter.js'),
+            import('./EditorToolbar.js'),
+            import('./FileUploader.js'),
+            import('./EditorHistory.js')
+        ]);
+
+        this.formatter = new MarkdownFormatter(this);
+        this.converter = new MarkdownConverter(this);
+        this.toolbarManager = new EditorToolbar(this);
+        this.uploader = new FileUploader(this);
+        this.history = new EditorHistory(this);
+    }
+
+    setupEditor() {
+        // Configurar editor para WYSIWYG
+        this.editor.contentEditable = true;
+        this.editor.style.outline = 'none';
+        this.editor.style.minHeight = '400px';
+        this.editor.style.padding = '20px';
+        this.editor.style.lineHeight = '1.6';
+        this.editor.style.fontSize = '16px';
+        
+        // Injetar estilos para visualização WYSIWYG
+        this.injectWysiwygStyles();
+    }
+
+    injectWysiwygStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            #visualEditor {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                color: var(--bs-body-color);
+                background-color: var(--bs-body-bg);
+                padding: 20px;
+                border-radius: 4px;
+                min-height: 400px;
+                line-height: 1.6;
+            }
+            
+            #visualEditor:focus {
+                outline: none;
+            }
+            
+            #visualEditor h1, #visualEditor h2, #visualEditor h3, 
+            #visualEditor h4, #visualEditor h5, #visualEditor h6 {
+                font-weight: bold;
+                margin: 20px 0 10px 0;
+                line-height: 1.2;
+                color: var(--bs-heading-color, inherit);
+            }
+            #visualEditor h1 { font-size: 2em; border-bottom: 2px solid var(--bs-border-color); padding-bottom: 10px; }
+            #visualEditor h2 { font-size: 1.5em; border-bottom: 1px solid var(--bs-border-color); padding-bottom: 8px; }
+            #visualEditor h3 { font-size: 1.25em; }
+            #visualEditor h4 { font-size: 1.1em; }
+            #visualEditor h5 { font-size: 1em; }
+            #visualEditor h6 { font-size: 0.9em; color: var(--bs-secondary-color); }
+
+            #visualEditor blockquote {
+                border-left: 4px solid var(--bs-border-color);
+                padding: 0 16px;
+                margin: 16px 0;
+                color: var(--bs-secondary-color);
+            }
+
+            #visualEditor code {
+                font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+                background-color: var(--bs-tertiary-bg);
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+
+            #visualEditor pre {
+                background-color: var(--bs-tertiary-bg);
+                padding: 16px;
+                border-radius: 6px;
+                overflow: auto;
+                margin: 16px 0;
+            }
+
+            #visualEditor pre code {
+                background-color: transparent;
+                padding: 0;
+                border-radius: 0;
+                font-size: 0.9em;
+                display: block;
+                overflow-x: auto;
+            }
+
+            #visualEditor ul, #visualEditor ol {
+                padding-left: 2em;
+                margin: 8px 0;
+            }
+
+            #visualEditor li {
+                margin: 4px 0;
+            }
+
+            #visualEditor .task-list-item {
+                list-style: none;
+                margin-left: -20px;
+                display: flex;
+                align-items: center;
+            }
+
+            #visualEditor .task-list-item input[type="checkbox"] {
+                margin-right: 8px;
+            }
+
+            #visualEditor a {
+                color: var(--bs-link-color);
+                text-decoration: none;
+            }
+
+            #visualEditor a:hover {
+                text-decoration: underline;
+            }
+
+            #visualEditor img {
+                max-width: 100%;
+                height: auto;
+                margin: 16px 0;
+                border-radius: 6px;
+            }
+
+            #visualEditor hr {
+                border: none;
+                border-top: 2px solid var(--bs-border-color);
+                margin: 24px 0;
+            }
+
+            #visualEditor strong {
+                font-weight: bold;
+            }
+
+            #visualEditor em {
+                font-style: italic;
+            }
+
+            #visualEditor del {
+                text-decoration: line-through;
+            }
+            
+            #visualEditor table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 16px 0;
+            }
+            
+            #visualEditor th, #visualEditor td {
+                border: 1px solid var(--bs-border-color);
+                padding: 8px;
+                text-align: left;
+            }
+            
+            #visualEditor th {
+                background-color: var(--bs-tertiary-bg);
+                font-weight: bold;
+            }
+            
+            /* Estilos para placeholder quando o editor está vazio */
+            #visualEditor:empty:before {
+                content: attr(data-placeholder);
+                color: var(--bs-secondary-color);
+                font-style: italic;
+                opacity: 0.6;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    bindCoreEvents() {
+        // Event listeners do editor
+        this.editor.addEventListener('input', () => this.handleContentChange());
+        this.editor.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        this.editor.addEventListener('paste', (event) => this.handlePaste(event));
+        this.editor.addEventListener('focus', () => this.onFocus());
+        this.editor.addEventListener('blur', () => this.onBlur());
+    }
+
+    handleContentChange() {
+        // Sempre que o conteúdo muda, notificar e salvar estado
+        if (this.isActive) {
+            this.history.saveState();
+            this.onContentChange();
+        }
+    }
+
+    handleKeyDown(event) {
+        // Atalhos de teclado
+        if (event.ctrlKey || event.metaKey) {
+            const shortcuts = {
+                'KeyB': () => this.formatter.toggleBold(),
+                'KeyI': () => this.formatter.toggleItalic(),
+                'KeyU': () => this.formatter.toggleUnderline(),
+                'KeyK': () => this.toolbarManager.showLinkModal(),
+                'Digit1': () => this.formatter.setHeading(1),
+                'Digit2': () => this.formatter.setHeading(2),
+                'Digit3': () => this.formatter.setHeading(3),
+                'Digit4': () => this.formatter.setHeading(4),
+                'Digit5': () => this.formatter.setHeading(5),
+                'Digit6': () => this.formatter.setHeading(6),
+                'KeyZ': () => this.history.undo(),
+                'KeyY': () => this.history.redo(),
+                'Backquote': () => this.formatter.toggleInlineCode()
+            };
+
+            if (shortcuts[event.code]) {
+                event.preventDefault();
+                shortcuts[event.code]();
+            }
+        }
+    }
+
+    handlePaste(event) {
+        event.preventDefault();
+        
+        const clipboardData = event.clipboardData || window.clipboardData;
+        
+        // Verificar se há HTML ou texto
+        const htmlData = clipboardData.getData('text/html');
+        const textData = clipboardData.getData('text/plain');
+        
+        if (htmlData) {
+            // Sanitizar HTML antes de inserir
+            if (window.DOMPurify) {
+                const sanitizedHtml = window.DOMPurify.sanitize(htmlData);
+                document.execCommand('insertHTML', false, sanitizedHtml);
+            } else {
+                // Fallback se não tiver DOMPurify
+                this.insertTextAtCursor(textData);
+            }
+        } else if (textData) {
+            // Inserir texto plano
+            this.insertTextAtCursor(textData);
+        }
+    }
+
+    insertTextAtCursor(text) {
+        // Substituir seleção ou inserir no cursor
+        if (!document.execCommand('insertText', false, text)) {
+            // Fallback para navegadores que não suportam execCommand
+            const selection = window.getSelection();
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(text));
+                
+                // Posicionar o cursor após o texto inserido
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+    }
+
+    show(content = '', fileName = '') {
+        this.isActive = true;
+        this.placeholder.style.display = 'none';
+        this.editor.style.display = 'block';
+        this.toolbarElement.style.display = 'block';
+        this.fileInfo.style.display = 'block';
+        
+        if (fileName) {
+            this.fileName.textContent = fileName;
+        }
+        
+        // Armazenar o markdown original
+        this.currentMarkdown = content;
+        
+        // Converter markdown para visualização WYSIWYG
+        if (content) {
+            this.setContentFromMarkdown(content);
+        } else {
+            this.editor.innerHTML = '';
+        }
+        
+        this.editor.focus();
+        this.history.saveState(); // Estado inicial
+    }
+
+    hide() {
+        this.isActive = false;
+        this.placeholder.style.display = 'flex';
+        this.editor.style.display = 'none';
+        this.toolbarElement.style.display = 'none';
+        this.fileInfo.style.display = 'none';
+        
+        // Limpar conteúdo
+        this.editor.innerHTML = '';
+        this.currentMarkdown = '';
+    }
+
+    setContentFromMarkdown(markdown) {
+        if (markdown === undefined || markdown === null) {
+            markdown = '';
+        }
+        
+        // Armazenar markdown atual
+        this.currentMarkdown = markdown;
+        
+        // Converter markdown para HTML visual usando o conversor
+        const html = this.converter.markdownToVisualHTML(markdown);
+        this.editor.innerHTML = html;
+    }
+
+    getMarkdownContent() {
+        if (!this.isActive) return '';
+        
+        // Converter HTML visual de volta para markdown
+        return this.converter.visualHTMLToMarkdown(this.editor.innerHTML);
+    }
+
+    onFocus() {
+        // Atualizar estado da barra de ferramentas quando o editor receber foco
+        if (this.toolbarManager) {
+            this.toolbarManager.updateState();
+        }
+    }
+
+    onBlur() {
+        // Salvar estado quando perder foco
+        if (this.isActive) {
+            this.history.saveState();
+        }
+    }
+
+    onContentChange() {
+        // Esta função pode ser estendida para notificar mudanças
+        if (window.manatiEditor && typeof window.manatiEditor.onVisualEditorChange === 'function') {
+            window.manatiEditor.onVisualEditorChange();
+        }
+    }
+
+    clear() {
+        this.editor.innerHTML = '';
+        this.currentMarkdown = '';
+        this.history.clear();
+    }
+
+    showToast(message, type = 'info') {
+        // Função para exibir notificações ao usuário
+        // Esta é apenas uma implementação básica que pode ser estendida
+        console.log(`[${type.toUpperCase()}] ${message}`);
+        
+        // Se o projeto tiver um sistema de toast, podemos usá-lo aqui
+        if (window.manatiEditor && typeof window.manatiEditor.showToast === 'function') {
+            window.manatiEditor.showToast(message, type);
+        }
+    }
+}
+
+export { VisualEditorCore };

@@ -1,0 +1,86 @@
+/**
+ * EditorHistory - Gerencia histórico de undo/redo para edição em Markdown
+ */
+class EditorHistory {
+    constructor(editor) {
+        this.editor = editor;
+        this.history = [];
+        this.historyIndex = -1;
+        this.maxHistorySize = 50;
+        this.lastSavedContent = '';
+        this.saveTimeout = null;
+    }
+
+    saveState() {
+        if (!this.editor.isActive) return;
+        
+        // Debounce para evitar salvar muito frequentemente
+        if (this.saveTimeout) {
+            clearTimeout(this.saveTimeout);
+        }
+        
+        this.saveTimeout = setTimeout(() => {
+            this.doSaveState();
+        }, 500);
+    }
+
+    doSaveState() {
+        if (!this.editor.editor) {
+            console.warn('Editor element não encontrado para salvar histórico');
+            return;
+        }
+        
+        const currentContent = this.editor.editor.textContent || '';
+        
+        // Não salvar se o conteúdo não mudou
+        if (this.lastSavedContent === currentContent) {
+            return;
+        }
+        
+        // Remover itens do histórico após o índice atual (para redo)
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        
+        // Adicionar novo estado
+        this.history.push(currentContent);
+        this.historyIndex = this.history.length - 1;
+        this.lastSavedContent = currentContent;
+        
+        // Limitar tamanho do histórico
+        if (this.history.length > this.maxHistorySize) {
+            this.history.shift();
+            this.historyIndex--;
+        }
+    }
+
+    undo() {
+        if (this.historyIndex > 0) {
+            this.historyIndex--;
+            this.applyState();
+        }
+    }
+
+    redo() {
+        if (this.historyIndex < this.history.length - 1) {
+            this.historyIndex++;
+            this.applyState();
+        }
+    }
+
+    applyState() {
+        if (!this.editor.isActive || this.historyIndex < 0 || this.historyIndex >= this.history.length) {
+            return;
+        }
+        
+        const content = this.history[this.historyIndex];
+        this.editor.editor.textContent = content;
+        this.lastSavedContent = content;
+    }
+
+    clear() {
+        this.history = [];
+        this.historyIndex = -1;
+        this.lastSavedContent = '';
+    }
+}
+
+export { EditorHistory };
